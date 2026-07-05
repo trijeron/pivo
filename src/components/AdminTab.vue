@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
-import { beerCatalog } from '../data/beerCatalog.js'
+import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
 const { appData, addBeer, importBeers, resetCounts, clearAll } = useAppData()
 
@@ -73,7 +73,12 @@ function doClear() {
             </div>
           </div>
         </div>
-        <input v-model="newStyle" class="new-beer-style" type="text" placeholder="Styl (např. 11°)">
+        <select v-model="newStyle" class="new-beer-style">
+          <option value="">Styl piva...</option>
+          <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="group.label">
+            <option v-for="style in group.styles" :key="style" :value="style">{{ style }}</option>
+          </optgroup>
+        </select>
         <input v-model="newPrice" class="new-beer-price" type="number" placeholder="Cena Kč" min="0" step="0.5">
         <input v-model="newVol"   class="new-beer-vol"   type="number" placeholder="Objem (l)" min="0.1" step="0.1">
         <input v-model="newAbv"   class="new-beer-abv"   type="number" placeholder="Alkohol %"  min="0"   step="0.1">

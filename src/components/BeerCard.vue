@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import RatingModal from './RatingModal.vue'
+import { beerStyleGroups } from '../data/beerCatalog.js'
 
 const props = defineProps({
   beer: { type: Object, required: true }
@@ -74,7 +75,12 @@ function ratingIcon(beer) {
     <div v-else class="beer-edit-form">
       <div class="beer-edit-inputs">
         <input v-model="editName"  type="text"   placeholder="Název"  style="flex-grow: 2; min-width: 120px;">
-        <input v-model="editStyle" type="text"   placeholder="Styl"   style="flex-grow: 1; min-width: 80px;">
+        <select v-model="editStyle" style="flex-grow: 1; min-width: 80px;">
+          <option value="">Styl piva...</option>
+          <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="group.label">
+            <option v-for="style in group.styles" :key="style" :value="style">{{ style }}</option>
+          </optgroup>
+        </select>
         <input v-model="editPrice" type="number" placeholder="Kč"     style="width: 55px;">
         <input v-model="editVol"   type="number" step="0.1"           style="width: 55px;">
         <input v-model="editAbv"   type="number" step="0.1"           style="width: 55px;">
