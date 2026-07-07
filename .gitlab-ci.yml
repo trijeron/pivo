@@ -1,0 +1,30 @@
+image: node:20
+
+stages:
+  - prepare
+  - build
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+prepare:
+  stage: prepare
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1h
+
+build:
+  stage: build
+  dependencies:
+    - prepare
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
