@@ -2,7 +2,7 @@ body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding
 h1, h2, h3 { text-align: center; margin-top: 0; color: #2c3e50; }
 
 .alert-warning { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.85em; text-align: center; border: 1px solid #f5c6cb; }
-.table-total-box { text-align: center; background: #2c3e50; color: #f1c40f; padding: 12px; border-radius: 8px; font-size: 1.4em; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: sticky; top: 10px; z-index: 100; }
+.table-total-box { text-align: center; background: #2c3e50; color: #f1c40f; padding: 12px; border-radius: 8px; font-size: 1.4em; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
 /* TABY (Záložky) */
 .tab-nav { display: flex; background: #fff; margin-bottom: 15px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -26,7 +26,7 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: #2c3e50; }
 /* Tlačítka pijáků pod pivem */
 .beer-friends-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .friend-pill-wrapper { display: flex; }
-.friend-pill { flex-grow: 1; background: #ecf0f1; border: 1px solid #bdc3c7; border-right: none; border-radius: 6px 0 0 6px; padding: 10px; font-size: 1.05em; font-weight: bold; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; }
+.friend-pill { flex-grow: 1; background: #ecf0f1; border: 1px solid #bdc3c7; border-right: none; border-radius: 6px 0 0 6px; padding: 10px; font-size: 1.05em; font-weight: bold; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
 .friend-pill:active { background: #bdc3c7; }
 .pill-count { background: #fff; border-radius: 12px; padding: 2px 8px; font-size: 0.9em; color: #95a5a6; }
 .pill-count.has-tasted { background: #27ae60; color: #fff; }
@@ -46,7 +46,7 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: #2c3e50; }
 .add-beer-form input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 .autocomplete-wrapper { position: relative; flex-grow: 2; min-width: 200px; }
 .new-beer-name { width: 100%; font-weight: bold; }
-.autocomplete-items { position: absolute; border: 1px solid #d4d4d4; z-index: 99; top: 100%; left: 0; right: 0; background: #fff; max-height: 250px; overflow-y: auto; border-radius: 0 0 6px 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.autocomplete-items { position: absolute; border: 1px solid #d4d4d4; z-index: 99; top: 100%; left: 0; right: 0; background: #fff; max-height: 250px; overflow-y: auto; border-radius: 0 0 6px 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid #d4d4d4; display: flex; flex-direction: column; }
 .autocomplete-items div:hover { background-color: #e9e9e9; }
 .ac-name { font-weight: bold; color: #2c3e50; }
@@ -69,12 +69,16 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 
 /* TAB 3: PIJÁCI A ÚTRATA */
 .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
+.users-rows { grid-template-columns: 1fr; }
 .user-card { background: #fff; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; position: relative; }
 .user-card:hover { transform: translateY(-2px); border-color: #3498db; }
 .user-card-name { font-size: 1.2em; font-weight: bold; color: #2c3e50; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .user-card-spend { color: #e67e22; font-weight: bold; font-size: 1.1em; }
 .user-card-bac { color: #c0392b; font-size: 0.9em; margin-top: 5px; background: #fdf2e9; border-radius: 10px; padding: 2px 5px; display: inline-block; }
-.user-card-edit-icon { position: absolute; top: 8px; right: 8px; color: #bdc3c7; font-size: 0.9em; }
+.user-card-edit-icon { position: absolute; top: 8px; right: 8px; color: #bdc3c7; font-size: 0.9em; border: none; background: transparent; cursor: pointer; }
+
+.selected-user-items { display: grid; grid-template-columns: 2fr 0.6fr 1fr 1fr; gap: 8px 12px; align-items: center; }
+.selected-user-items-head { font-size: 0.85em; color: #7f8c8d; font-weight: bold; text-transform: uppercase; letter-spacing: 0.03em; }
 
 .btn-add-friend { background: #3498db; color: white; border: none; padding: 12px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
 
