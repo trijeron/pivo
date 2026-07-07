@@ -2,6 +2,7 @@ image: node:20
 
 stages:
   - prepare
+  - test
   - build
 
 cache:
@@ -17,6 +18,13 @@ prepare:
     paths:
       - node_modules/
     expire_in: 1h
+
+test:
+  stage: test
+  dependencies:
+    - prepare
+  script:
+    - npm run test
 
 build:
   stage: build
