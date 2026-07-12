@@ -63,7 +63,13 @@ const translations = {
       clearAll: '🗑️ Smazat úplně vše',
       importedBeers: 'Naimportováno {count} piv.',
       resetConfirm: 'Vynulovat všem pijákům vypitá piva (vynuluje se útrata i promile)?',
-      clearConfirm: 'Smazat VŠECHNO a začít od nuly?'
+      clearConfirm: 'Smazat VŠECHNO a začít od nuly?',
+      importConfirmTitle: 'Potvrdit import',
+      importConfirmSubtitle: 'Bude naimportováno {count} piv do hospody:',
+      importConfirm: 'Naimportovat',
+      importCancel: 'Zrušit',
+      pubPriceList: 'Rychlá správa cen — {pub}',
+      noPubBeers: 'V této hospodě zatím nejsou žádná piva.'
     },
     beer: {
       deleteConfirm: 'Opravdu trvale smazat toto pivo z lístku?',
@@ -158,7 +164,13 @@ const translations = {
       clearAll: '🗑️ Delete everything',
       importedBeers: 'Imported {count} beers.',
       resetConfirm: 'Reset consumed beers for all drinkers (this also resets totals and BAC)?',
-      clearConfirm: 'Delete EVERYTHING and start from scratch?'
+      clearConfirm: 'Delete EVERYTHING and start from scratch?',
+      importConfirmTitle: 'Confirm import',
+      importConfirmSubtitle: '{count} beers will be imported into the pub:',
+      importConfirm: 'Import',
+      importCancel: 'Cancel',
+      pubPriceList: 'Quick price management — {pub}',
+      noPubBeers: 'No beers in this pub yet.'
     },
     beer: {
       deleteConfirm: 'Do you really want to permanently delete this beer from the menu?',
@@ -253,7 +265,13 @@ const translations = {
       clearAll: '🗑️ Alles löschen',
       importedBeers: '{count} Biere importiert.',
       resetConfirm: 'Getrunkene Biere für alle Trinker zurücksetzen (setzt auch Kosten und Promille zurück)?',
-      clearConfirm: 'ALLES löschen und von vorne anfangen?'
+      clearConfirm: 'ALLES löschen und von vorne anfangen?',
+      importConfirmTitle: 'Import bestätigen',
+      importConfirmSubtitle: '{count} Biere werden in die Kneipe importiert:',
+      importConfirm: 'Importieren',
+      importCancel: 'Abbrechen',
+      pubPriceList: 'Schnelle Preisverwaltung — {pub}',
+      noPubBeers: 'In dieser Kneipe gibt es noch keine Biere.'
     },
     beer: {
       deleteConfirm: 'Möchtest du dieses Bier wirklich dauerhaft aus der Karte löschen?',

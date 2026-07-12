@@ -1,7 +1,7 @@
 import { reactive, computed } from 'vue'
 import { useI18n } from './useI18n.js'
 
-const STORAGE_KEY = 'beerAppDataV7'
+const STORAGE_KEY = 'beerAppDataV8'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
 
 const { t } = useI18n()
@@ -38,7 +38,8 @@ const appData = reactive({
   friends: makeDefaultFriends(),
   pubs: makeDefaultPubs(),
   activePubId: 'pub-default',
-  beers: []
+  beers: [],
+  catalog: []
 })
 
 const uiState = reactive({
@@ -147,6 +148,7 @@ function loadData() {
   try {
     const raw =
       localStorage.getItem(STORAGE_KEY) ||
+      localStorage.getItem('beerAppDataV7') ||
       localStorage.getItem('beerAppDataV6') ||
       localStorage.getItem('beerAppDataV5')
     if (raw) {
@@ -156,6 +158,7 @@ function loadData() {
       appData.pubs = parsed.pubs || makeDefaultPubs()
       appData.activePubId = parsed.activePubId || appData.pubs[0]?.id || 'pub-default'
       appData.beers = parsed.beers || []
+      appData.catalog = Array.isArray(parsed.catalog) ? parsed.catalog : []
     }
   } catch (e) {}
 
@@ -253,7 +256,21 @@ function adjustRating(beerId, field, delta) {
   }
 }
 
+function addToCatalog({ name, style, vol, abv }) {
+  if (!name) return
+  const exists = appData.catalog.some(c => c.name.toLowerCase() === name.toLowerCase())
+  if (!exists) {
+    appData.catalog.push({
+      name,
+      style: style || '',
+      vol: parseFloat(vol) || 0.5,
+      abv: parseFloat(abv) || 5.0
+    })
+  }
+}
+
 function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId, drinkTime = makeCurrentTime() }) {
+  addToCatalog({ name, style, vol, abv })
   appData.beers.unshift({
     id: Date.now(),
     pubId,
@@ -274,10 +291,15 @@ function importBeers(text, pubId = appData.activePubId, drinkTime = makeCurrentT
     if (line.trim()) {
       const parts = line.split(' - ').map(p => p.trim())
       if (parts.length > 0) {
+        const name = parts[0]
+        const style = parts[1] || ''
+        const vol = parseFloat(parts[3]) || 0.5
+        const abv = parseFloat(parts[4]) || 5.0
+        addToCatalog({ name, style, vol, abv })
         appData.beers.push({
-          id: Date.now() + index, pubId, name: parts[0], style: parts[1] || '',
-          price: parseFloat(parts[2]) || 0, vol: parseFloat(parts[3]) || 0.5,
-          abv: parseFloat(parts[4]) || 5.0, drinkTime: String(drinkTime || makeCurrentTime()),
+          id: Date.now() + index, pubId, name, style,
+          price: parseFloat(parts[2]) || 0, vol, abv,
+          drinkTime: String(drinkTime || makeCurrentTime()),
           counts: new Array(appData.friends.length).fill(0),
           likes: 0, dislikes: 0
         })
@@ -287,6 +309,14 @@ function importBeers(text, pubId = appData.activePubId, drinkTime = makeCurrentT
   })
   if (count > 0) saveData()
   return count
+}
+
+function updateBeerPrice(beerId, price) {
+  const beer = appData.beers.find(b => b.id === beerId)
+  if (beer) {
+    beer.price = parseFloat(price) || 0
+    saveData()
+  }
 }
 
 function addFriend() {
@@ -350,6 +380,7 @@ function clearAll() {
   appData.pubs = makeDefaultPubs()
   appData.activePubId = appData.pubs[0].id
   appData.beers = []
+  appData.catalog = []
   uiState.quickMode = 'single'
   uiState.quickSelection = [0]
   saveData()
@@ -415,7 +446,7 @@ export function useAppData() {
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
-    addBeer, importBeers,
+    addBeer, importBeers, updateBeerPrice,
     setActivePub, addPub,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearActivePubDrinking, clearAll,

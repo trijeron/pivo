@@ -4,7 +4,7 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
-const { appData, activePub, addPub, addBeer, importBeers, resetCounts, clearAll, setActivePub } = useAppData()
+const { appData, activePub, activeBeers, addPub, addBeer, importBeers, resetCounts, clearAll, setActivePub, updateBeerPrice } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
 function makeCurrentTime() {
@@ -24,10 +24,20 @@ const simpleImport = ref(true)
 const showAutocomplete = ref(false)
 const selectedCatalogBeer = ref(null)
 
+// Import confirmation dialog
+const showImportDialog = ref(false)
+const parsedImportBeers = ref([])
+
+const combinedCatalog = computed(() => {
+  const dynamicEntries = appData.catalog
+    .filter(c => !beerCatalog.some(bc => bc.name.toLowerCase() === c.name.toLowerCase()))
+  return [...beerCatalog, ...dynamicEntries]
+})
+
 const acMatches = computed(() => {
   if (!newName.value) return []
   const val = newName.value.toLowerCase()
-  return beerCatalog.filter(b => b.name.toLowerCase().includes(val)).slice(0, 15)
+  return combinedCatalog.value.filter(b => b.name.toLowerCase().includes(val)).slice(0, 15)
 })
 
 const selectedCatalogBeerDetails = computed(() =>
@@ -42,7 +52,7 @@ function syncFromCatalogBeer(item, updatePrice = true) {
   newStyle.value = item.style
   newVol.value = String(item.vol)
   newAbv.value = String(item.abv)
-  if (updatePrice) newPrice.value = String(item.price)
+  if (updatePrice && item.price != null) newPrice.value = String(item.price)
 }
 
 function selectAc(item) {
@@ -52,7 +62,7 @@ function selectAc(item) {
 
 function findCatalogBeerByName(name) {
   const trimmedName = name.trim().toLowerCase()
-  return beerCatalog.find(item => item.name.toLowerCase() === trimmedName) || null
+  return combinedCatalog.value.find(item => item.name.toLowerCase() === trimmedName) || null
 }
 
 function onNameInput() {
@@ -90,11 +100,38 @@ function submitBeer() {
   showAutocomplete.value = false
 }
 
+function parseImportText(text) {
+  return text.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => {
+      const parts = line.split(' - ').map(p => p.trim())
+      return {
+        name: parts[0] || '',
+        style: parts[1] || '',
+        price: parseFloat(parts[2]) || 0,
+        vol: parseFloat(parts[3]) || 0.5,
+        abv: parseFloat(parts[4]) || 5.0
+      }
+    })
+    .filter(b => b.name)
+}
+
 function doImport() {
   const text = importText.value.trim()
   if (!text) return
-const count = importBeers(text, appData.activePubId, newDrinkTime.value)
-  if (count > 0) { alert(t('admin.importedBeers', { count })); importText.value = '' }
+  parsedImportBeers.value = parseImportText(text)
+  if (parsedImportBeers.value.length > 0) showImportDialog.value = true
+}
+
+function confirmImport() {
+  const count = importBeers(importText.value, appData.activePubId, newDrinkTime.value)
+  if (count > 0) importText.value = ''
+  showImportDialog.value = false
+}
+
+function cancelImport() {
+  showImportDialog.value = false
 }
 
 function doReset() {
@@ -108,6 +145,27 @@ function doClear() {
 
 <template>
   <div class="tab-content">
+    <!-- Import confirmation dialog -->
+    <div v-if="showImportDialog" class="modal" @click.self="cancelImport">
+      <div class="modal-content">
+        <span class="close-modal" @click="cancelImport">&times;</span>
+        <h3>{{ t('admin.importConfirmTitle') }}</h3>
+        <p style="color: var(--muted); font-size: 0.9em; margin-bottom: 10px;">
+          {{ t('admin.importConfirmSubtitle', { count: parsedImportBeers.length }) }}
+        </p>
+        <ul class="import-preview-list">
+          <li v-for="(beer, i) in parsedImportBeers" :key="i" class="import-preview-item">
+            <span class="import-preview-name">{{ beer.name }}</span>
+            <span class="import-preview-meta">{{ beer.price }} {{ t('currency') }} · {{ beer.vol }}l · {{ beer.abv }}%</span>
+          </li>
+        </ul>
+        <div class="import-dialog-actions">
+          <button type="button" class="btn-import" @click="confirmImport">{{ t('admin.importConfirm') }}</button>
+          <button type="button" class="btn-secondary" @click="cancelImport">{{ t('admin.importCancel') }}</button>
+        </div>
+      </div>
+    </div>
+
     <div class="section">
       <h2>{{ t('admin.pubCatalog') }}</h2>
       <div class="pub-form-row">
@@ -145,7 +203,7 @@ function doClear() {
           <div v-if="showAutocomplete && acMatches.length" class="autocomplete-items">
             <div v-for="item in acMatches" :key="item.name" @mousedown.prevent="selectAc(item)">
               <span class="ac-name">{{ item.name }}</span>
-              <span class="ac-desc">{{ translateBeerStyle(item.style) }} • {{ item.price }} {{ t('currency') }} • {{ item.abv }}%</span>
+              <span class="ac-desc">{{ translateBeerStyle(item.style) }} · {{ item.price != null ? item.price + ' ' + t('currency') : '—' }} · {{ item.abv }}%</span>
             </div>
           </div>
         </div>
@@ -173,6 +231,26 @@ function doClear() {
         <textarea v-model="importText" class="import-area" rows="4" :placeholder="t('admin.importPlaceholder')"></textarea>
         <button type="button" class="btn-import" @click="doImport">{{ t('admin.importButton') }}</button>
       </details>
+    </div>
+
+    <div class="section">
+      <h2>{{ t('admin.pubPriceList', { pub: activePub?.name || t('defaults.defaultPub') }) }}</h2>
+      <div v-if="activeBeers.length === 0" class="price-list-empty">{{ t('admin.noPubBeers') }}</div>
+      <div v-else class="price-list">
+        <div v-for="beer in activeBeers" :key="beer.id" class="price-list-row">
+          <span class="price-list-name">{{ beer.name }}</span>
+          <span class="price-list-meta">{{ beer.vol }}l · {{ beer.abv }}%</span>
+          <input
+            class="price-list-input"
+            type="number"
+            :value="beer.price"
+            min="0"
+            step="0.5"
+            @change="updateBeerPrice(beer.id, $event.target.value)"
+          >
+          <span class="price-list-currency">{{ t('currency') }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="section">

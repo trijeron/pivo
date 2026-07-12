@@ -151,6 +151,25 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .toolbar-pub-select { display: flex; align-items: center; gap: 8px; font-weight: bold; flex-wrap: wrap; }
 .toolbar-pub-select select { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-soft); }
 
+/* Quick price list */
+.price-list { display: flex; flex-direction: column; gap: 6px; }
+.price-list-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); }
+.price-list-name { flex: 1; font-weight: bold; color: var(--heading); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.price-list-meta { font-size: 0.82em; color: var(--muted); white-space: nowrap; }
+.price-list-input { width: 75px; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); text-align: right; font-size: 1em; }
+.price-list-currency { font-size: 0.9em; color: var(--muted); white-space: nowrap; }
+.price-list-empty { color: var(--muted); text-align: center; padding: 12px 0; font-style: italic; }
+
+/* Import preview dialog */
+.import-preview-list { list-style: none; padding: 0; margin: 0 0 16px 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
+.import-preview-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); gap: 10px; }
+.import-preview-item:last-child { border-bottom: none; }
+.import-preview-name { font-weight: bold; color: var(--heading); }
+.import-preview-meta { font-size: 0.85em; color: var(--muted); white-space: nowrap; }
+.import-dialog-actions { display: flex; gap: 8px; }
+.import-dialog-actions .btn-import { flex: 1; }
+.import-dialog-actions .btn-secondary { flex: 1; text-align: center; }
+
 /* TAB 3: PIJÁCI A ÚTRATA */
 .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
 .users-rows { grid-template-columns: 1fr; }
