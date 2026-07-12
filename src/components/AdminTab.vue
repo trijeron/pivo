@@ -179,7 +179,12 @@ function doClear() {
         <div class="import-edit-list">
           <div v-for="(beer, i) in parsedImportBeers" :key="i" class="import-edit-row">
             <input v-model="beer.name" class="import-edit-name" type="text" :placeholder="t('admin.beerNamePlaceholder')">
-            <input v-model="beer.style" class="import-edit-style" type="text" :placeholder="t('admin.beerStylePlaceholder')">
+            <select v-model="beer.style" class="import-edit-style">
+              <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
+              <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
+                <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
+              </optgroup>
+            </select>
             <input v-model.number="beer.price" class="import-edit-num" type="number" min="0" step="0.5">
             <input v-model.number="beer.vol" class="import-edit-num" type="number" min="0.1" step="0.1">
             <input v-model.number="beer.abv" class="import-edit-num" type="number" min="0" step="0.1">
