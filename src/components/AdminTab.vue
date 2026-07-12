@@ -7,12 +7,18 @@ import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 const { appData, activePub, addPub, addBeer, importBeers, resetCounts, clearAll, setActivePub } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
+function makeCurrentTime() {
+  const now = new Date()
+  return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+}
+
 const newPubName = ref('')
 const newName  = ref('')
 const newStyle = ref('')
 const newPrice = ref('')
 const newVol   = ref('0.5')
 const newAbv   = ref('5.0')
+const newDrinkTime = ref(makeCurrentTime())
 const importText = ref('')
 const simpleImport = ref(true)
 const showAutocomplete = ref(false)
@@ -75,9 +81,11 @@ function submitBeer() {
     style: importedBeer?.style || newStyle.value.trim(),
     price: newPrice.value,
     vol: importedBeer?.vol ?? newVol.value,
-    abv: importedBeer?.abv ?? newAbv.value
+    abv: importedBeer?.abv ?? newAbv.value,
+    drinkTime: newDrinkTime.value
   })
   newName.value = ''; newStyle.value = ''; newPrice.value = ''; newVol.value = '0.5'; newAbv.value = '5.0'
+  newDrinkTime.value = makeCurrentTime()
   selectedCatalogBeer.value = null
   showAutocomplete.value = false
 }
@@ -85,7 +93,7 @@ function submitBeer() {
 function doImport() {
   const text = importText.value.trim()
   if (!text) return
-  const count = importBeers(text)
+const count = importBeers(text, appData.activePubId, newDrinkTime.value)
   if (count > 0) { alert(t('admin.importedBeers', { count })); importText.value = '' }
 }
 
@@ -151,6 +159,7 @@ function doClear() {
           </optgroup>
         </select>
         <input v-model="newPrice" class="new-beer-price" type="number" :placeholder="t('admin.pricePlaceholder')" min="0" step="0.5">
+        <input v-model="newDrinkTime" class="new-beer-time" type="time" :title="t('admin.drinkTimeLabel')">
         <input v-if="!simpleImport" v-model="newVol" class="new-beer-vol" type="number" :placeholder="t('admin.volumePlaceholder')" min="0.1" step="0.1">
         <input v-if="!simpleImport" v-model="newAbv" class="new-beer-abv" type="number" :placeholder="t('admin.abvPlaceholder')"  min="0"   step="0.1">
         <button type="submit" class="btn-add">{{ t('admin.addBeerToTable') }}</button>

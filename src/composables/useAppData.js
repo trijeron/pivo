@@ -17,6 +17,11 @@ function makeDefaultStart() {
   return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
 }
 
+function makeCurrentTime() {
+  const now = new Date()
+  return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+}
+
 function makePubId() {
   return `pub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
@@ -97,6 +102,47 @@ function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)) } catch (e) {}
 }
 
+function parseTimeToDate(timeValue, fallbackTime) {
+  const source = String(timeValue || fallbackTime || makeDefaultStart())
+  const [hRaw, mRaw] = source.split(':')
+  const hours = Number.parseInt(hRaw, 10)
+  const minutes = Number.parseInt(mRaw, 10)
+  const now = new Date()
+  const parsed = new Date()
+  parsed.setHours(Number.isNaN(hours) ? now.getHours() : hours, Number.isNaN(minutes) ? now.getMinutes() : minutes, 0, 0)
+  if (parsed > now) parsed.setDate(parsed.getDate() - 1)
+  return parsed
+}
+
+function computeStatsForBeers(beers) {
+  let tableTotal = 0
+  const friendTotals = new Array(appData.friends.length).fill(0)
+  const friendBacContrib = new Array(appData.friends.length).fill(0)
+  const now = new Date()
+
+  beers.forEach(beer => {
+    const price = parseFloat(beer.price) || 0
+    const gramsPerBeer = (parseFloat(beer.vol) || 0) * 1000 * ((parseFloat(beer.abv) || 0) / 100) * 0.8
+    const beerTime = parseTimeToDate(beer.drinkTime, appData.startTime)
+    const hoursElapsed = Math.max(0, (now - beerTime) / (1000 * 60 * 60))
+
+    beer.counts.forEach((count, fi) => {
+      if (!count) return
+      friendTotals[fi] += count * price
+      tableTotal += count * price
+
+      const friend = appData.friends[fi] || {}
+      const bodyWeight = (parseFloat(friend.weight) || 80) * (friend.gender === 'f' ? 0.55 : 0.68)
+      const theoreticalBac = (count * gramsPerBeer) / bodyWeight
+      friendBacContrib[fi] += Math.max(0, theoreticalBac - hoursElapsed * 0.15)
+    })
+  })
+
+  const friendBacs = friendBacContrib.map(v => Math.max(0, v))
+  const friendSobers = friendBacs.map(v => (v > 0 ? v / 0.15 : 0))
+  return { tableTotal, friendTotals, friendBacs, friendSobers }
+}
+
 function loadData() {
   try {
     const raw =
@@ -128,6 +174,7 @@ function loadData() {
     if (beer.price === undefined) beer.price = 0
     if (beer.vol === undefined) beer.vol = 0.5
     if (beer.abv === undefined) beer.abv = 5.0
+    if (!beer.drinkTime) beer.drinkTime = appData.startTime || makeCurrentTime()
     if (!beer.pubId || !appData.pubs.some(pub => pub.id === beer.pubId)) beer.pubId = appData.activePubId
   })
 
@@ -136,43 +183,7 @@ function loadData() {
 }
 
 const stats = computed(() => {
-  let tableTotal = 0
-  const friendTotals = new Array(appData.friends.length).fill(0)
-  const friendAlcoholGrams = new Array(appData.friends.length).fill(0)
-
-  appData.beers.forEach(beer => {
-    const price = parseFloat(beer.price) || 0
-    const gramsPerBeer = (parseFloat(beer.vol) || 0) * 1000 * ((parseFloat(beer.abv) || 0) / 100) * 0.8
-    beer.counts.forEach((count, fi) => {
-      friendTotals[fi] += count * price
-      tableTotal += count * price
-      friendAlcoholGrams[fi] += count * gramsPerBeer
-    })
-  })
-
-  const now = new Date()
-  const [startH, startM] = appData.startTime.split(':')
-  const startObj = new Date()
-  startObj.setHours(parseInt(startH), parseInt(startM), 0, 0)
-  if (startObj > now) startObj.setDate(startObj.getDate() - 1)
-  const hoursElapsed = Math.max(0, (now - startObj) / (1000 * 60 * 60))
-
-  const friendBacs = []
-  const friendSobers = []
-  appData.friends.forEach((friend, i) => {
-    const totalGrams = friendAlcoholGrams[i]
-    if (totalGrams === 0) {
-      friendBacs.push(0)
-      friendSobers.push(0)
-    } else {
-      const theoreticalBac = totalGrams / ((parseFloat(friend.weight) || 80) * (friend.gender === 'f' ? 0.55 : 0.68))
-      const currentBac = Math.max(0, theoreticalBac - hoursElapsed * 0.15)
-      friendBacs.push(currentBac)
-      friendSobers.push(currentBac / 0.15)
-    }
-  })
-
-  return { tableTotal, friendTotals, friendBacs, friendSobers }
+  return computeStatsForBeers(appData.beers)
 })
 
 const activePub = computed(() =>
@@ -181,6 +192,10 @@ const activePub = computed(() =>
 
 const activeBeers = computed(() =>
   appData.beers.filter(beer => beer.pubId === appData.activePubId)
+)
+
+const activePubStats = computed(() =>
+  computeStatsForBeers(activeBeers.value)
 )
 
 function incrementCount(beerId, friendIndex) {
@@ -238,7 +253,7 @@ function adjustRating(beerId, field, delta) {
   }
 }
 
-function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId }) {
+function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId, drinkTime = makeCurrentTime() }) {
   appData.beers.unshift({
     id: Date.now(),
     pubId,
@@ -246,13 +261,14 @@ function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId }) 
     price: parseFloat(price) || 0,
     vol: parseFloat(vol) || 0.5,
     abv: parseFloat(abv) || 5.0,
+    drinkTime: String(drinkTime || makeCurrentTime()),
     counts: new Array(appData.friends.length).fill(0),
     likes: 0, dislikes: 0
   })
   saveData()
 }
 
-function importBeers(text, pubId = appData.activePubId) {
+function importBeers(text, pubId = appData.activePubId, drinkTime = makeCurrentTime()) {
   let count = 0
   text.split('\n').forEach((line, index) => {
     if (line.trim()) {
@@ -261,7 +277,8 @@ function importBeers(text, pubId = appData.activePubId) {
         appData.beers.push({
           id: Date.now() + index, pubId, name: parts[0], style: parts[1] || '',
           price: parseFloat(parts[2]) || 0, vol: parseFloat(parts[3]) || 0.5,
-          abv: parseFloat(parts[4]) || 5.0, counts: new Array(appData.friends.length).fill(0),
+          abv: parseFloat(parts[4]) || 5.0, drinkTime: String(drinkTime || makeCurrentTime()),
+          counts: new Array(appData.friends.length).fill(0),
           likes: 0, dislikes: 0
         })
         count++
@@ -315,6 +332,16 @@ function resetCounts() {
   appData.beers.forEach(b => { b.counts = new Array(appData.friends.length).fill(0) })
   appData.startTime = makeDefaultStart()
   saveData()
+}
+
+function clearActivePubDrinking() {
+  let changed = false
+  appData.beers.forEach(beer => {
+    if (beer.pubId !== appData.activePubId) return
+    beer.counts = new Array(appData.friends.length).fill(0)
+    changed = true
+  })
+  if (changed) saveData()
 }
 
 function clearAll() {
@@ -384,14 +411,14 @@ loadTheme()
 
 export function useAppData() {
   return {
-    appData, stats, uiState, activePub, activeBeers,
+    appData, stats, uiState, activePub, activeBeers, activePubStats,
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, importBeers,
     setActivePub, addPub,
     addFriend, updateFriend, deleteFriend,
-    resetCounts, clearAll,
+    resetCounts, clearActivePubDrinking, clearAll,
     setTheme, toggleTheme,
     setQuickMode, toggleQuickFriend, quickSelectAll, quickClearSelection,
     applyQuickIncrement, applyQuickDecrement
