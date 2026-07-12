@@ -8,8 +8,7 @@ const { t } = useI18n()
 
 function makeDefaultFriends() {
   return [
-    { name: t('defaults.friend', { number: 1 }), weight: 85, gender: 'm' },
-    { name: t('defaults.friend', { number: 2 }), weight: 75, gender: 'm' }
+    { name: t('defaults.me'), weight: 80, gender: 'm' }
   ]
 }
 
