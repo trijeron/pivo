@@ -32,12 +32,19 @@ const translations = {
       people: '👥 Kamarádi a útrata'
     },
     beerTab: {
+      pubLabel: 'Hospoda',
       manage: '⚙️ Správa piv',
       empty: 'Na stole zatím neleží žádné pivo.',
       emptyHint: 'Přidejte ho v administraci piv.'
     },
     admin: {
+      pubCatalog: 'Hospody a nabídka',
+      activePub: 'Aktivní hospoda',
+      pubPlaceholder: 'Název nové hospody',
+      addPubButton: '+ Přidat hospodu',
+      simpleImport: 'Jednoduchý import z existujícího katalogu',
       addBeer: 'Přidat pivo z nabídky',
+      addBeerForPub: 'Přidat pivo pro {pub}',
       beerNamePlaceholder: 'Začni psát název...',
       beerStylePlaceholder: 'Styl piva...',
       pricePlaceholder: 'Cena Kč',
@@ -93,7 +100,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Neznámé pivo',
       friend: 'Kámoš {number}',
-      me: 'Já'
+      me: 'Já',
+      defaultPub: 'Moje hospoda'
     }
   },
   en: {
@@ -115,12 +123,19 @@ const translations = {
       people: '👥 Drinkers and totals'
     },
     beerTab: {
+      pubLabel: 'Pub',
       manage: '⚙️ Beer administration',
       empty: 'There are no beers on the table yet.',
       emptyHint: 'Add them in beer administration.'
     },
     admin: {
+      pubCatalog: 'Pubs and menu',
+      activePub: 'Active pub',
+      pubPlaceholder: 'New pub name',
+      addPubButton: '+ Add pub',
+      simpleImport: 'Simple import from existing catalog',
       addBeer: 'Add beer from menu',
+      addBeerForPub: 'Add beer for {pub}',
       beerNamePlaceholder: 'Start typing a name...',
       beerStylePlaceholder: 'Beer style...',
       pricePlaceholder: 'Price CZK',
@@ -176,7 +191,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Unknown beer',
       friend: 'Friend {number}',
-      me: 'Me'
+      me: 'Me',
+      defaultPub: 'My pub'
     }
   },
   de: {
@@ -198,12 +214,19 @@ const translations = {
       people: '👥 Trinker und Kosten'
     },
     beerTab: {
+      pubLabel: 'Kneipe',
       manage: '⚙️ Bierverwaltung',
       empty: 'Auf dem Tisch liegt noch kein Bier.',
       emptyHint: 'Füge es in der Bierverwaltung hinzu.'
     },
     admin: {
+      pubCatalog: 'Kneipen und Angebot',
+      activePub: 'Aktive Kneipe',
+      pubPlaceholder: 'Name der neuen Kneipe',
+      addPubButton: '+ Kneipe hinzufügen',
+      simpleImport: 'Einfacher Import aus vorhandenem Katalog',
       addBeer: 'Bier aus dem Angebot hinzufügen',
+      addBeerForPub: 'Bier für {pub} hinzufügen',
       beerNamePlaceholder: 'Name eingeben...',
       beerStylePlaceholder: 'Bierstil...',
       pricePlaceholder: 'Preis CZK',
@@ -259,7 +282,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Unbekanntes Bier',
       friend: 'Freund {number}',
-      me: 'Ich'
+      me: 'Ich',
+      defaultPub: 'Meine Kneipe'
     }
   }
 }

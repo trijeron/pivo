@@ -78,7 +78,7 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .tab-btn:hover { background: var(--surface-hover); }
 .tab-btn.active { background: var(--surface); color: #3498db; border-bottom-color: #3498db; }
 .tab-content { animation: fadeIn 0.3s; }
-.tab-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.tab-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* TAB 1: PIVA NA STOLE */
@@ -117,8 +117,16 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .section { background: var(--surface); padding: 15px; border-radius: 8px; box-shadow: var(--shadow); margin-bottom: 15px; }
 .add-beer-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
 .add-beer-form input, .add-beer-form select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; box-sizing: border-box; background: var(--surface); color: var(--text); }
+.pub-form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.pub-select-group { display: flex; flex-direction: column; gap: 6px; font-weight: bold; min-width: 220px; }
+.pub-select-group select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
+.pub-add-form { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.pub-add-form input { flex: 1; min-width: 180px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
+.simple-import-toggle { display: flex; align-items: center; gap: 8px; width: 100%; font-weight: bold; color: var(--text); }
+.simple-import-toggle input { margin: 0; }
 .autocomplete-wrapper { position: relative; flex-grow: 2; min-width: 200px; }
 .new-beer-name { width: 100%; font-weight: bold; }
+.catalog-hint { width: 100%; margin: 0; color: var(--muted); font-size: 0.9em; }
 .autocomplete-items { position: absolute; border: 1px solid var(--border-strong); z-index: 99; top: 100%; left: 0; right: 0; background: var(--surface); max-height: 250px; overflow-y: auto; border-radius: 0 0 6px 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid var(--border-strong); display: flex; flex-direction: column; }
 .autocomplete-items div:hover { background-color: var(--surface-hover-strong); }
@@ -140,6 +148,8 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .btn-warning { background: #f39c12; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; flex-grow: 1; }
 .btn-danger { background: #c0392b; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; flex-grow: 1; }
 .btn-secondary { background: var(--surface-soft); color: var(--text); border: 1px solid var(--border-strong); padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.toolbar-pub-select { display: flex; align-items: center; gap: 8px; font-weight: bold; flex-wrap: wrap; }
+.toolbar-pub-select select { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-soft); }
 
 /* TAB 3: PIJÁCI A ÚTRATA */
 .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -189,5 +199,7 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
   .language-switch { justify-content: space-between; }
   .language-switch select { flex: 1; }
   .theme-toggle { width: 100%; }
-  .tab-toolbar .btn-secondary { width: 100%; }
+  .tab-toolbar { align-items: stretch; }
+  .toolbar-pub-select { justify-content: space-between; }
+  .toolbar-pub-select select, .tab-toolbar .btn-secondary, .pub-add-form input, .pub-add-form .btn-secondary { width: 100%; }
 }

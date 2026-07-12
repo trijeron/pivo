@@ -1,7 +1,7 @@
 import { reactive, computed } from 'vue'
 import { useI18n } from './useI18n.js'
 
-const STORAGE_KEY = 'beerAppDataV6'
+const STORAGE_KEY = 'beerAppDataV7'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
 
 const { t } = useI18n()
@@ -17,10 +17,22 @@ function makeDefaultStart() {
   return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
 }
 
+function makePubId() {
+  return `pub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+function makeDefaultPubs() {
+  return [
+    { id: 'pub-default', name: t('defaults.defaultPub') }
+  ]
+}
+
 // Module-level singleton so all components share the same state
 const appData = reactive({
   startTime: makeDefaultStart(),
   friends: makeDefaultFriends(),
+  pubs: makeDefaultPubs(),
+  activePubId: 'pub-default',
   beers: []
 })
 
@@ -60,17 +72,43 @@ function normalizeQuickSelection() {
   uiState.quickSelection = [...new Set(validIndexes)]
 }
 
+function ensurePubState() {
+  if (!Array.isArray(appData.pubs) || appData.pubs.length === 0) {
+    appData.pubs = makeDefaultPubs()
+  }
+
+  appData.pubs = appData.pubs
+    .filter(pub => pub && pub.id)
+    .map(pub => ({
+      id: String(pub.id),
+      name: String(pub.name || t('defaults.defaultPub')).trim() || t('defaults.defaultPub')
+    }))
+
+  if (appData.pubs.length === 0) {
+    appData.pubs = makeDefaultPubs()
+  }
+
+  if (!appData.pubs.some(pub => pub.id === appData.activePubId)) {
+    appData.activePubId = appData.pubs[0].id
+  }
+}
+
 function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)) } catch (e) {}
 }
 
 function loadData() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('beerAppDataV5')
+    const raw =
+      localStorage.getItem(STORAGE_KEY) ||
+      localStorage.getItem('beerAppDataV6') ||
+      localStorage.getItem('beerAppDataV5')
     if (raw) {
       const parsed = JSON.parse(raw)
       appData.startTime = parsed.startTime || makeDefaultStart()
       appData.friends = parsed.friends || makeDefaultFriends()
+      appData.pubs = parsed.pubs || makeDefaultPubs()
+      appData.activePubId = parsed.activePubId || appData.pubs[0]?.id || 'pub-default'
       appData.beers = parsed.beers || []
     }
   } catch (e) {}
@@ -79,6 +117,7 @@ function loadData() {
     typeof f === 'string' ? { name: f, weight: 80, gender: 'm' } : f
   )
   if (!appData.startTime) appData.startTime = makeDefaultStart()
+  ensurePubState()
 
   appData.beers.forEach(beer => {
     if (!beer.counts) beer.counts = new Array(appData.friends.length).fill(0)
@@ -89,6 +128,7 @@ function loadData() {
     if (beer.price === undefined) beer.price = 0
     if (beer.vol === undefined) beer.vol = 0.5
     if (beer.abv === undefined) beer.abv = 5.0
+    if (!beer.pubId || !appData.pubs.some(pub => pub.id === beer.pubId)) beer.pubId = appData.activePubId
   })
 
   loadTheme()
@@ -134,6 +174,14 @@ const stats = computed(() => {
 
   return { tableTotal, friendTotals, friendBacs, friendSobers }
 })
+
+const activePub = computed(() =>
+  appData.pubs.find(pub => pub.id === appData.activePubId) || appData.pubs[0] || null
+)
+
+const activeBeers = computed(() =>
+  appData.beers.filter(beer => beer.pubId === appData.activePubId)
+)
 
 function incrementCount(beerId, friendIndex) {
   const beer = appData.beers.find(b => b.id === beerId)
@@ -190,9 +238,10 @@ function adjustRating(beerId, field, delta) {
   }
 }
 
-function addBeer({ name, style, price, vol, abv }) {
+function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId }) {
   appData.beers.unshift({
     id: Date.now(),
+    pubId,
     name, style,
     price: parseFloat(price) || 0,
     vol: parseFloat(vol) || 0.5,
@@ -203,14 +252,14 @@ function addBeer({ name, style, price, vol, abv }) {
   saveData()
 }
 
-function importBeers(text) {
+function importBeers(text, pubId = appData.activePubId) {
   let count = 0
   text.split('\n').forEach((line, index) => {
     if (line.trim()) {
       const parts = line.split(' - ').map(p => p.trim())
       if (parts.length > 0) {
         appData.beers.push({
-          id: Date.now() + index, name: parts[0], style: parts[1] || '',
+          id: Date.now() + index, pubId, name: parts[0], style: parts[1] || '',
           price: parseFloat(parts[2]) || 0, vol: parseFloat(parts[3]) || 0.5,
           abv: parseFloat(parts[4]) || 5.0, counts: new Array(appData.friends.length).fill(0),
           likes: 0, dislikes: 0
@@ -228,6 +277,22 @@ function addFriend() {
   appData.beers.forEach(b => b.counts.push(0))
   normalizeQuickSelection()
   saveData()
+}
+
+function setActivePub(pubId) {
+  if (!appData.pubs.some(pub => pub.id === pubId)) return
+  appData.activePubId = pubId
+  saveData()
+}
+
+function addPub(name) {
+  const trimmedName = String(name || '').trim()
+  if (!trimmedName) return null
+  const newPub = { id: makePubId(), name: trimmedName }
+  appData.pubs.push(newPub)
+  appData.activePubId = newPub.id
+  saveData()
+  return newPub
 }
 
 function updateFriend(index, field, value) {
@@ -255,6 +320,8 @@ function resetCounts() {
 function clearAll() {
   appData.startTime = makeDefaultStart()
   appData.friends = makeDefaultFriends()
+  appData.pubs = makeDefaultPubs()
+  appData.activePubId = appData.pubs[0].id
   appData.beers = []
   uiState.quickMode = 'single'
   uiState.quickSelection = [0]
@@ -317,11 +384,12 @@ loadTheme()
 
 export function useAppData() {
   return {
-    appData, stats, uiState,
+    appData, stats, uiState, activePub, activeBeers,
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, importBeers,
+    setActivePub, addPub,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearAll,
     setTheme, toggleTheme,

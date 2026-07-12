@@ -4,16 +4,19 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
-const { appData, addBeer, importBeers, resetCounts, clearAll } = useAppData()
+const { appData, activePub, addPub, addBeer, importBeers, resetCounts, clearAll, setActivePub } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
+const newPubName = ref('')
 const newName  = ref('')
 const newStyle = ref('')
 const newPrice = ref('')
 const newVol   = ref('0.5')
 const newAbv   = ref('5.0')
 const importText = ref('')
+const simpleImport = ref(true)
 const showAutocomplete = ref(false)
+const selectedCatalogBeer = ref(null)
 
 const acMatches = computed(() => {
   if (!newName.value) return []
@@ -21,19 +24,61 @@ const acMatches = computed(() => {
   return beerCatalog.filter(b => b.name.toLowerCase().includes(val)).slice(0, 15)
 })
 
-function selectAc(item) {
-  newName.value  = item.name
+const selectedCatalogBeerDetails = computed(() =>
+  selectedCatalogBeer.value
+    ? `${translateBeerStyle(selectedCatalogBeer.value.style)} • ${selectedCatalogBeer.value.vol}l • ${selectedCatalogBeer.value.abv}%`
+    : ''
+)
+
+function syncFromCatalogBeer(item, updatePrice = true) {
+  selectedCatalogBeer.value = item
+  newName.value = item.name
   newStyle.value = item.style
-  newPrice.value = String(item.price)
-  newVol.value   = String(item.vol)
-  newAbv.value   = String(item.abv)
+  newVol.value = String(item.vol)
+  newAbv.value = String(item.abv)
+  if (updatePrice) newPrice.value = String(item.price)
+}
+
+function selectAc(item) {
+  syncFromCatalogBeer(item)
   showAutocomplete.value = false
+}
+
+function findCatalogBeerByName(name) {
+  const trimmedName = name.trim().toLowerCase()
+  return beerCatalog.find(item => item.name.toLowerCase() === trimmedName) || null
+}
+
+function onNameInput() {
+  selectedCatalogBeer.value = findCatalogBeerByName(newName.value)
+  if (simpleImport.value && selectedCatalogBeer.value) {
+    syncFromCatalogBeer(selectedCatalogBeer.value, false)
+  }
+}
+
+function onSimpleImportChange() {
+  if (simpleImport.value && selectedCatalogBeer.value) {
+    syncFromCatalogBeer(selectedCatalogBeer.value, false)
+  }
+}
+
+function submitPub() {
+  const createdPub = addPub(newPubName.value)
+  if (createdPub) newPubName.value = ''
 }
 
 function submitBeer() {
   if (!newName.value.trim()) return
-  addBeer({ name: newName.value.trim(), style: newStyle.value.trim(), price: newPrice.value, vol: newVol.value, abv: newAbv.value })
+  const importedBeer = simpleImport.value ? (selectedCatalogBeer.value || findCatalogBeerByName(newName.value)) : null
+  addBeer({
+    name: importedBeer?.name || newName.value.trim(),
+    style: importedBeer?.style || newStyle.value.trim(),
+    price: newPrice.value,
+    vol: importedBeer?.vol ?? newVol.value,
+    abv: importedBeer?.abv ?? newAbv.value
+  })
   newName.value = ''; newStyle.value = ''; newPrice.value = ''; newVol.value = '0.5'; newAbv.value = '5.0'
+  selectedCatalogBeer.value = null
   showAutocomplete.value = false
 }
 
@@ -56,8 +101,28 @@ function doClear() {
 <template>
   <div class="tab-content">
     <div class="section">
-      <h2>{{ t('admin.addBeer') }}</h2>
+      <h2>{{ t('admin.pubCatalog') }}</h2>
+      <div class="pub-form-row">
+        <label class="pub-select-group">
+          <span>{{ t('admin.activePub') }}</span>
+          <select :value="appData.activePubId" @change="setActivePub($event.target.value)">
+            <option v-for="pub in appData.pubs" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
+          </select>
+        </label>
+        <form class="pub-add-form" @submit.prevent="submitPub">
+          <input v-model="newPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
+          <button type="submit" class="btn-secondary">{{ t('admin.addPubButton') }}</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>{{ t('admin.addBeerForPub', { pub: activePub?.name || t('defaults.defaultPub') }) }}</h2>
       <form class="add-beer-form" autocomplete="off" @submit.prevent="submitBeer">
+        <label class="simple-import-toggle">
+          <input v-model="simpleImport" type="checkbox" @change="onSimpleImportChange">
+          <span>{{ t('admin.simpleImport') }}</span>
+        </label>
         <div class="autocomplete-wrapper">
           <input
             v-model="newName"
@@ -67,6 +132,7 @@ function doClear() {
             required
             @focus="showAutocomplete = true"
             @blur="setTimeout(() => { showAutocomplete = false }, 150)"
+            @input="onNameInput"
           >
           <div v-if="showAutocomplete && acMatches.length" class="autocomplete-items">
             <div v-for="item in acMatches" :key="item.name" @mousedown.prevent="selectAc(item)">
@@ -75,15 +141,18 @@ function doClear() {
             </div>
           </div>
         </div>
-        <select v-model="newStyle" class="new-beer-style">
+        <p v-if="simpleImport && selectedCatalogBeerDetails" class="catalog-hint">
+          {{ selectedCatalogBeerDetails }}
+        </p>
+        <select v-if="!simpleImport" v-model="newStyle" class="new-beer-style">
           <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
           <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
             <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
           </optgroup>
         </select>
         <input v-model="newPrice" class="new-beer-price" type="number" :placeholder="t('admin.pricePlaceholder')" min="0" step="0.5">
-        <input v-model="newVol"   class="new-beer-vol"   type="number" :placeholder="t('admin.volumePlaceholder')" min="0.1" step="0.1">
-        <input v-model="newAbv"   class="new-beer-abv"   type="number" :placeholder="t('admin.abvPlaceholder')"  min="0"   step="0.1">
+        <input v-if="!simpleImport" v-model="newVol" class="new-beer-vol" type="number" :placeholder="t('admin.volumePlaceholder')" min="0.1" step="0.1">
+        <input v-if="!simpleImport" v-model="newAbv" class="new-beer-abv" type="number" :placeholder="t('admin.abvPlaceholder')"  min="0"   step="0.1">
         <button type="submit" class="btn-add">{{ t('admin.addBeerToTable') }}</button>
       </form>
 
