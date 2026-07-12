@@ -78,7 +78,7 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .tab-btn:hover { background: var(--surface-hover); }
 .tab-btn.active { background: var(--surface); color: #3498db; border-bottom-color: #3498db; }
 .tab-content { animation: fadeIn 0.3s; }
-.tab-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.tab-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* TAB 1: PIVA NA STOLE */
@@ -117,15 +117,23 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .section { background: var(--surface); padding: 15px; border-radius: 8px; box-shadow: var(--shadow); margin-bottom: 15px; }
 .add-beer-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
 .add-beer-form input, .add-beer-form select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; box-sizing: border-box; background: var(--surface); color: var(--text); }
+.pub-form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.pub-select-group { display: flex; flex-direction: column; gap: 6px; font-weight: bold; min-width: 220px; }
+.pub-select-group select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
+.pub-add-form { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.pub-add-form input { flex: 1; min-width: 180px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
+.simple-import-toggle { display: flex; align-items: center; gap: 8px; width: 100%; font-weight: bold; color: var(--text); }
+.simple-import-toggle input { margin: 0; }
 .autocomplete-wrapper { position: relative; flex-grow: 2; min-width: 200px; }
 .new-beer-name { width: 100%; font-weight: bold; }
+.catalog-hint { width: 100%; margin: 0; color: var(--muted); font-size: 0.9em; }
 .autocomplete-items { position: absolute; border: 1px solid var(--border-strong); z-index: 99; top: 100%; left: 0; right: 0; background: var(--surface); max-height: 250px; overflow-y: auto; border-radius: 0 0 6px 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid var(--border-strong); display: flex; flex-direction: column; }
 .autocomplete-items div:hover { background-color: var(--surface-hover-strong); }
 .ac-name { font-weight: bold; color: var(--heading); }
 .ac-desc { font-size: 0.85em; color: var(--muted); margin-top: 3px; }
 .new-beer-style { flex-grow: 1; min-width: 120px; }
-.new-beer-price, .new-beer-vol, .new-beer-abv { width: 70px; }
+.new-beer-price, .new-beer-vol, .new-beer-abv, .new-beer-time { width: 90px; }
 .btn-add { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
 
 .time-setup { text-align: center; margin-bottom: 20px; padding: 10px; background: var(--surface-info); border-radius: 6px; font-weight: bold; }
@@ -140,10 +148,37 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .btn-warning { background: #f39c12; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; flex-grow: 1; }
 .btn-danger { background: #c0392b; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; flex-grow: 1; }
 .btn-secondary { background: var(--surface-soft); color: var(--text); border: 1px solid var(--border-strong); padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.toolbar-pub-select { display: flex; align-items: center; gap: 8px; font-weight: bold; flex-wrap: wrap; }
+.toolbar-pub-select select { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-soft); }
+
+/* Quick price list */
+.price-list { display: flex; flex-direction: column; gap: 6px; }
+.price-list-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); }
+.price-list-name { flex: 1; font-weight: bold; color: var(--heading); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.price-list-meta { font-size: 0.82em; color: var(--muted); white-space: nowrap; }
+.price-list-input { width: 75px; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); text-align: right; font-size: 1em; }
+.price-list-currency { font-size: 0.9em; color: var(--muted); white-space: nowrap; }
+.price-list-empty { color: var(--muted); text-align: center; padding: 12px 0; font-style: italic; }
+
+/* Import preview dialog */
+.import-modal-content { max-width: 660px !important; width: 95% !important; }
+.import-edit-header { display: grid; grid-template-columns: 2fr 1.5fr 60px 60px 60px 28px; gap: 4px; padding: 0 2px 4px; font-size: 0.78em; font-weight: bold; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.import-edit-list { display: flex; flex-direction: column; gap: 5px; max-height: 300px; overflow-y: auto; margin-bottom: 14px; }
+.import-edit-row { display: grid; grid-template-columns: 2fr 1.5fr 60px 60px 60px 28px; gap: 4px; align-items: center; }
+.import-edit-name, .import-edit-style { padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); font-size: 0.9em; min-width: 0; }
+.import-edit-num { padding: 6px 4px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); font-size: 0.9em; text-align: right; width: 100%; min-width: 0; }
+.import-edit-remove { background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: bold; padding: 0; height: 28px; display: flex; align-items: center; justify-content: center; }
+.import-dialog-actions { display: flex; gap: 8px; }
+.import-dialog-actions .btn-import { flex: 1; }
+.import-dialog-actions .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
+.import-dialog-actions .btn-secondary { flex: 1; text-align: center; }
 
 /* TAB 3: PIJÁCI A ÚTRATA */
 .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
 .users-rows { grid-template-columns: 1fr; }
+.people-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.people-pub-select { display: flex; align-items: center; gap: 8px; font-weight: bold; flex-wrap: wrap; }
+.people-pub-select select { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-soft); }
 .user-card { background: var(--surface); border-radius: 10px; padding: 15px; text-align: center; box-shadow: var(--shadow); cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; position: relative; }
 .user-card:hover { transform: translateY(-2px); border-color: #3498db; }
 .user-card-name { font-size: 1.2em; font-weight: bold; color: var(--heading); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -189,5 +224,10 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
   .language-switch { justify-content: space-between; }
   .language-switch select { flex: 1; }
   .theme-toggle { width: 100%; }
-  .tab-toolbar .btn-secondary { width: 100%; }
+  .tab-toolbar { align-items: stretch; }
+  .toolbar-pub-select { justify-content: space-between; }
+  .people-toolbar { align-items: stretch; }
+  .people-pub-select { justify-content: space-between; }
+  .people-pub-select select, .people-toolbar .btn-warning { width: 100%; }
+  .toolbar-pub-select select, .tab-toolbar .btn-secondary, .pub-add-form input, .pub-add-form .btn-secondary { width: 100%; }
 }

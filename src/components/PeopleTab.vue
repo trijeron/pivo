@@ -4,7 +4,7 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import UserModal from './UserModal.vue'
 
-const { appData, stats, addFriend } = useAppData()
+const { appData, activeBeers, activePub, activePubStats, addFriend, setActivePub, clearActivePubDrinking } = useAppData()
 const { t, translateBeerStyle } = useI18n()
 
 const activeUserIndex = ref(null)
@@ -18,7 +18,7 @@ const selectedUser = computed(() => {
 const selectedUserItems = computed(() => {
   if (selectedUserIndex.value === null) return []
 
-  return appData.beers
+  return activeBeers.value
     .map(beer => {
       const count = beer.counts?.[selectedUserIndex.value] || 0
       const price = parseFloat(beer.price) || 0
@@ -33,10 +33,28 @@ const selectedUserItems = computed(() => {
     })
     .filter(item => item.count > 0)
 })
+
+function onClearActivePubDrinking() {
+  if (confirm(t('people.clearPubConfirm', { pub: activePub.value?.name || t('defaults.defaultPub') }))) {
+    clearActivePubDrinking()
+  }
+}
 </script>
 
 <template>
   <div class="tab-content">
+    <div class="section people-toolbar">
+      <label class="people-pub-select">
+        <span>{{ t('people.pubLabel') }}</span>
+        <select :value="appData.activePubId" @change="setActivePub($event.target.value)">
+          <option v-for="pub in appData.pubs" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
+        </select>
+      </label>
+      <button type="button" class="btn-warning" @click="onClearActivePubDrinking">
+        {{ t('people.clearPubDrinking') }}
+      </button>
+    </div>
+
     <div class="users-grid users-rows">
       <div
         v-for="(friend, index) in appData.friends"
@@ -54,10 +72,10 @@ const selectedUserItems = computed(() => {
         </button>
 
         <div class="user-card-name">{{ friend.name }}</div>
-        <div class="user-card-spend">{{ stats.friendTotals[index] }} {{ t('currency') }}</div>
+        <div class="user-card-spend">{{ activePubStats.friendTotals[index] }} {{ t('currency') }}</div>
         <div class="user-card-bac">
-          🍺 {{ stats.friendBacs[index].toFixed(2) }} ‰<br>
-          <small style="color:#7f8c8d; font-weight:normal;">{{ t('people.soberIn', { hours: stats.friendSobers[index].toFixed(1) }) }}</small>
+          🍺 {{ activePubStats.friendBacs[index].toFixed(2) }} ‰<br>
+          <small style="color:#7f8c8d; font-weight:normal;">{{ t('people.soberIn', { hours: activePubStats.friendSobers[index].toFixed(1) }) }}</small>
         </div>
       </div>
     </div>

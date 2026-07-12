@@ -32,15 +32,23 @@ const translations = {
       people: '👥 Kamarádi a útrata'
     },
     beerTab: {
+      pubLabel: 'Hospoda',
       manage: '⚙️ Správa piv',
       empty: 'Na stole zatím neleží žádné pivo.',
       emptyHint: 'Přidejte ho v administraci piv.'
     },
     admin: {
+      pubCatalog: 'Hospody a nabídka',
+      activePub: 'Aktivní hospoda',
+      pubPlaceholder: 'Název nové hospody',
+      addPubButton: '+ Přidat hospodu',
+      simpleImport: 'Jednoduchý import z existujícího katalogu',
       addBeer: 'Přidat pivo z nabídky',
+      addBeerForPub: 'Přidat pivo pro {pub}',
       beerNamePlaceholder: 'Začni psát název...',
       beerStylePlaceholder: 'Styl piva...',
       pricePlaceholder: 'Cena Kč',
+      drinkTimeLabel: 'Čas pití',
       volumePlaceholder: 'Objem (l)',
       abvPlaceholder: 'Alkohol %',
       addBeerToTable: '+ Přidat pivo na stůl',
@@ -55,7 +63,19 @@ const translations = {
       clearAll: '🗑️ Smazat úplně vše',
       importedBeers: 'Naimportováno {count} piv.',
       resetConfirm: 'Vynulovat všem pijákům vypitá piva (vynuluje se útrata i promile)?',
-      clearConfirm: 'Smazat VŠECHNO a začít od nuly?'
+      clearConfirm: 'Smazat VŠECHNO a začít od nuly?',
+      importConfirmTitle: 'Potvrdit import',
+      importConfirmSubtitle: 'Bude naimportováno {count} piv do hospody:',
+      importConfirm: 'Naimportovat',
+      importCancel: 'Zrušit',
+      importRemoveBeer: 'Odebrat',
+      importColName: 'Název',
+      importColStyle: 'Styl',
+      importColPrice: 'Cena',
+      importColVol: 'Objem',
+      importColAbv: 'Alk%',
+      pubPriceList: 'Rychlá správa cen — {pub}',
+      noPubBeers: 'V této hospodě zatím nejsou žádná piva.'
     },
     beer: {
       deleteConfirm: 'Opravdu trvale smazat toto pivo z lístku?',
@@ -70,6 +90,9 @@ const translations = {
     },
     people: {
       editTitle: 'Upravit kamaráda',
+      pubLabel: 'Hospoda',
+      clearPubDrinking: '🧹 Smazat pití v této hospodě',
+      clearPubConfirm: 'Smazat vypitá piva v hospodě "{pub}"?',
       soberIn: 'Čistý za ~{hours} h',
       hasWhat: '📋 Co má {name}',
       empty: 'Zatím nemá nic vypito.',
@@ -93,7 +116,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Neznámé pivo',
       friend: 'Kámoš {number}',
-      me: 'Já'
+      me: 'Já',
+      defaultPub: 'Moje hospoda'
     }
   },
   en: {
@@ -115,15 +139,23 @@ const translations = {
       people: '👥 Drinkers and totals'
     },
     beerTab: {
+      pubLabel: 'Pub',
       manage: '⚙️ Beer administration',
       empty: 'There are no beers on the table yet.',
       emptyHint: 'Add them in beer administration.'
     },
     admin: {
+      pubCatalog: 'Pubs and menu',
+      activePub: 'Active pub',
+      pubPlaceholder: 'New pub name',
+      addPubButton: '+ Add pub',
+      simpleImport: 'Simple import from existing catalog',
       addBeer: 'Add beer from menu',
+      addBeerForPub: 'Add beer for {pub}',
       beerNamePlaceholder: 'Start typing a name...',
       beerStylePlaceholder: 'Beer style...',
       pricePlaceholder: 'Price CZK',
+      drinkTimeLabel: 'Drinking time',
       volumePlaceholder: 'Volume (l)',
       abvPlaceholder: 'Alcohol %',
       addBeerToTable: '+ Add beer to table',
@@ -138,7 +170,19 @@ const translations = {
       clearAll: '🗑️ Delete everything',
       importedBeers: 'Imported {count} beers.',
       resetConfirm: 'Reset consumed beers for all drinkers (this also resets totals and BAC)?',
-      clearConfirm: 'Delete EVERYTHING and start from scratch?'
+      clearConfirm: 'Delete EVERYTHING and start from scratch?',
+      importConfirmTitle: 'Confirm import',
+      importConfirmSubtitle: '{count} beers will be imported into the pub:',
+      importConfirm: 'Import',
+      importCancel: 'Cancel',
+      importRemoveBeer: 'Remove',
+      importColName: 'Name',
+      importColStyle: 'Style',
+      importColPrice: 'Price',
+      importColVol: 'Vol',
+      importColAbv: 'ABV%',
+      pubPriceList: 'Quick price management — {pub}',
+      noPubBeers: 'No beers in this pub yet.'
     },
     beer: {
       deleteConfirm: 'Do you really want to permanently delete this beer from the menu?',
@@ -153,6 +197,9 @@ const translations = {
     },
     people: {
       editTitle: 'Edit drinker',
+      pubLabel: 'Pub',
+      clearPubDrinking: '🧹 Clear drinking in this pub',
+      clearPubConfirm: 'Clear consumed beers in pub "{pub}"?',
       soberIn: 'Sober in ~{hours} h',
       hasWhat: '📋 {name} has',
       empty: 'Nothing consumed yet.',
@@ -176,7 +223,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Unknown beer',
       friend: 'Friend {number}',
-      me: 'Me'
+      me: 'Me',
+      defaultPub: 'My pub'
     }
   },
   de: {
@@ -198,15 +246,23 @@ const translations = {
       people: '👥 Trinker und Kosten'
     },
     beerTab: {
+      pubLabel: 'Kneipe',
       manage: '⚙️ Bierverwaltung',
       empty: 'Auf dem Tisch liegt noch kein Bier.',
       emptyHint: 'Füge es in der Bierverwaltung hinzu.'
     },
     admin: {
+      pubCatalog: 'Kneipen und Angebot',
+      activePub: 'Aktive Kneipe',
+      pubPlaceholder: 'Name der neuen Kneipe',
+      addPubButton: '+ Kneipe hinzufügen',
+      simpleImport: 'Einfacher Import aus vorhandenem Katalog',
       addBeer: 'Bier aus dem Angebot hinzufügen',
+      addBeerForPub: 'Bier für {pub} hinzufügen',
       beerNamePlaceholder: 'Name eingeben...',
       beerStylePlaceholder: 'Bierstil...',
       pricePlaceholder: 'Preis CZK',
+      drinkTimeLabel: 'Trinkzeit',
       volumePlaceholder: 'Volumen (l)',
       abvPlaceholder: 'Alkohol %',
       addBeerToTable: '+ Bier auf den Tisch',
@@ -221,7 +277,19 @@ const translations = {
       clearAll: '🗑️ Alles löschen',
       importedBeers: '{count} Biere importiert.',
       resetConfirm: 'Getrunkene Biere für alle Trinker zurücksetzen (setzt auch Kosten und Promille zurück)?',
-      clearConfirm: 'ALLES löschen und von vorne anfangen?'
+      clearConfirm: 'ALLES löschen und von vorne anfangen?',
+      importConfirmTitle: 'Import bestätigen',
+      importConfirmSubtitle: '{count} Biere werden in die Kneipe importiert:',
+      importConfirm: 'Importieren',
+      importCancel: 'Abbrechen',
+      importRemoveBeer: 'Entfernen',
+      importColName: 'Name',
+      importColStyle: 'Stil',
+      importColPrice: 'Preis',
+      importColVol: 'Vol',
+      importColAbv: 'Alk%',
+      pubPriceList: 'Schnelle Preisverwaltung — {pub}',
+      noPubBeers: 'In dieser Kneipe gibt es noch keine Biere.'
     },
     beer: {
       deleteConfirm: 'Möchtest du dieses Bier wirklich dauerhaft aus der Karte löschen?',
@@ -236,6 +304,9 @@ const translations = {
     },
     people: {
       editTitle: 'Trinker bearbeiten',
+      pubLabel: 'Kneipe',
+      clearPubDrinking: '🧹 Trinken in dieser Kneipe löschen',
+      clearPubConfirm: 'Getrunkene Biere in der Kneipe "{pub}" löschen?',
       soberIn: 'Nüchtern in ~{hours} Std.',
       hasWhat: '📋 {name} hat',
       empty: 'Bisher noch nichts getrunken.',
@@ -259,7 +330,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Unbekanntes Bier',
       friend: 'Freund {number}',
-      me: 'Ich'
+      me: 'Ich',
+      defaultPub: 'Meine Kneipe'
     }
   }
 }
