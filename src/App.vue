@@ -5,7 +5,7 @@ import BeerTab   from './components/BeerTab.vue'
 import AdminTab  from './components/AdminTab.vue'
 import PeopleTab from './components/PeopleTab.vue'
 
-const { appData, stats, loadData } = useAppData()
+const { appData, stats, uiState, loadData, toggleTheme } = useAppData()
 
 const activeTab = ref('beers')
 
@@ -19,7 +19,12 @@ onUnmounted(() => clearInterval(ticker))
 </script>
 
 <template>
-  <h1>🍻 Pivní lístek</h1>
+  <div class="app-topbar">
+    <h1>🍻 Pivní lístek</h1>
+    <button type="button" class="theme-toggle" @click="toggleTheme">
+      {{ uiState.theme === 'dark' ? '☀️ Světlý režim' : '🌙 Tmavý režim' }}
+    </button>
+  </div>
 
   <div class="table-total-box">Útrata stolu: {{ stats.tableTotal }} Kč</div>
 

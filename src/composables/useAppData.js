@@ -1,6 +1,7 @@
 import { reactive, computed } from 'vue'
 
 const STORAGE_KEY = 'beerAppDataV6'
+const THEME_STORAGE_KEY = 'beerAppThemeV1'
 
 const defaultFriends = [
   { name: 'Jan', weight: 85, gender: 'm' },
@@ -18,6 +19,42 @@ const appData = reactive({
   friends: JSON.parse(JSON.stringify(defaultFriends)),
   beers: []
 })
+
+const uiState = reactive({
+  theme: 'light',
+  quickMode: 'single',
+  quickSelection: [0]
+})
+
+function syncTheme() {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', uiState.theme)
+  }
+}
+
+function saveTheme() {
+  try { localStorage.setItem(THEME_STORAGE_KEY, uiState.theme) } catch (e) {}
+}
+
+function loadTheme() {
+  try {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY)
+    if (savedTheme === 'dark' || savedTheme === 'light') uiState.theme = savedTheme
+  } catch (e) {}
+  syncTheme()
+}
+
+function normalizeQuickSelection() {
+  const validIndexes = uiState.quickSelection
+    .filter(index => Number.isInteger(index) && index >= 0 && index < appData.friends.length)
+
+  if (uiState.quickMode === 'single') {
+    uiState.quickSelection = validIndexes.length ? [validIndexes[0]] : (appData.friends.length ? [0] : [])
+    return
+  }
+
+  uiState.quickSelection = [...new Set(validIndexes)]
+}
 
 function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)) } catch (e) {}
@@ -49,6 +86,9 @@ function loadData() {
     if (beer.vol === undefined) beer.vol = 0.5
     if (beer.abv === undefined) beer.abv = 5.0
   })
+
+  loadTheme()
+  normalizeQuickSelection()
 }
 
 const stats = computed(() => {
@@ -118,6 +158,26 @@ function deleteBeer(beerId) {
   if (idx !== -1) { appData.beers.splice(idx, 1); saveData() }
 }
 
+function applyQuickCountChange(beerId, delta) {
+  const beer = appData.beers.find(b => b.id === beerId)
+  if (!beer) return
+
+  normalizeQuickSelection()
+  if (uiState.quickSelection.length === 0) return
+
+  let changed = false
+  uiState.quickSelection.forEach(friendIndex => {
+    const current = beer.counts[friendIndex] || 0
+    const next = Math.max(0, current + delta)
+    if (next !== current) {
+      beer.counts[friendIndex] = next
+      changed = true
+    }
+  })
+
+  if (changed) saveData()
+}
+
 function adjustRating(beerId, field, delta) {
   const beer = appData.beers.find(b => b.id === beerId)
   if (beer) {
@@ -162,6 +222,7 @@ function importBeers(text) {
 function addFriend() {
   appData.friends.push({ name: `Kámoš ${appData.friends.length + 1}`, weight: 80, gender: 'm' })
   appData.beers.forEach(b => b.counts.push(0))
+  normalizeQuickSelection()
   saveData()
 }
 
@@ -174,6 +235,10 @@ function updateFriend(index, field, value) {
 function deleteFriend(index) {
   appData.friends.splice(index, 1)
   appData.beers.forEach(b => b.counts.splice(index, 1))
+  uiState.quickSelection = uiState.quickSelection
+    .filter(selectedIndex => selectedIndex !== index)
+    .map(selectedIndex => selectedIndex > index ? selectedIndex - 1 : selectedIndex)
+  normalizeQuickSelection()
   saveData()
 }
 
@@ -187,17 +252,76 @@ function clearAll() {
   appData.startTime = makeDefaultStart()
   appData.friends = JSON.parse(JSON.stringify(defaultFriends))
   appData.beers = []
+  uiState.quickMode = 'single'
+  uiState.quickSelection = [0]
   saveData()
 }
 
+function setTheme(theme) {
+  if (theme !== 'dark' && theme !== 'light') return
+  uiState.theme = theme
+  syncTheme()
+  saveTheme()
+}
+
+function toggleTheme() {
+  setTheme(uiState.theme === 'dark' ? 'light' : 'dark')
+}
+
+function setQuickMode(mode) {
+  if (mode !== 'single' && mode !== 'group') return
+  uiState.quickMode = mode
+  normalizeQuickSelection()
+}
+
+function toggleQuickFriend(index) {
+  if (index < 0 || index >= appData.friends.length) return
+
+  if (uiState.quickMode === 'single') {
+    uiState.quickSelection = [index]
+    return
+  }
+
+  if (uiState.quickSelection.includes(index)) {
+    uiState.quickSelection = uiState.quickSelection.filter(selectedIndex => selectedIndex !== index)
+  } else {
+    uiState.quickSelection = [...uiState.quickSelection, index]
+  }
+  normalizeQuickSelection()
+}
+
+function quickSelectAll() {
+  uiState.quickMode = 'group'
+  uiState.quickSelection = appData.friends.map((_, index) => index)
+  normalizeQuickSelection()
+}
+
+function quickClearSelection() {
+  uiState.quickSelection = []
+  normalizeQuickSelection()
+}
+
+function applyQuickIncrement(beerId) {
+  applyQuickCountChange(beerId, 1)
+}
+
+function applyQuickDecrement(beerId) {
+  applyQuickCountChange(beerId, -1)
+}
+
+loadTheme()
+
 export function useAppData() {
   return {
-    appData, stats,
+    appData, stats, uiState,
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, importBeers,
     addFriend, updateFriend, deleteFriend,
-    resetCounts, clearAll
+    resetCounts, clearAll,
+    setTheme, toggleTheme,
+    setQuickMode, toggleQuickFriend, quickSelectAll, quickClearSelection,
+    applyQuickIncrement, applyQuickDecrement
   }
 }
