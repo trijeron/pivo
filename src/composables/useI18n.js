@@ -92,7 +92,8 @@ const translations = {
     },
     defaults: {
       unknownBeer: 'Neznámé pivo',
-      friend: 'Kámoš {number}'
+      friend: 'Kámoš {number}',
+      me: 'Já'
     }
   },
   en: {
@@ -174,7 +175,8 @@ const translations = {
     },
     defaults: {
       unknownBeer: 'Unknown beer',
-      friend: 'Friend {number}'
+      friend: 'Friend {number}',
+      me: 'Me'
     }
   },
   de: {
@@ -256,7 +258,8 @@ const translations = {
     },
     defaults: {
       unknownBeer: 'Unbekanntes Bier',
-      friend: 'Freund {number}'
+      friend: 'Freund {number}',
+      me: 'Ich'
     }
   }
 }
