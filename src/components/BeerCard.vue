@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
+import { useI18n } from '../composables/useI18n.js'
 import RatingModal from './RatingModal.vue'
 import { beerStyleGroups } from '../data/beerCatalog.js'
 
@@ -18,6 +19,7 @@ const {
   applyQuickIncrement,
   applyQuickDecrement
 } = useAppData()
+const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
 const editing = ref(false)
 const ratingOpen = ref(false)
@@ -49,7 +51,7 @@ function saveEdit() {
 }
 
 function onDelete() {
-  if (confirm('Opravdu trvale smazat toto pivo z lístku?')) {
+  if (confirm(t('beer.deleteConfirm'))) {
     deleteBeer(props.beer.id)
   }
 }
@@ -70,7 +72,7 @@ function ratingIcon(beer) {
         <div style="flex-grow: 1;">
           <span class="gbc-name">{{ beer.name }} <span class="summary-icon">{{ ratingIcon(beer) }}</span></span>
           <span class="gbc-desc">
-            {{ beer.style }} • {{ beer.price > 0 ? beer.price + ' Kč • ' : '' }}{{ beer.vol }}l • {{ beer.abv }}%
+            {{ translateBeerStyle(beer.style) }} • {{ beer.price > 0 ? beer.price + ' ' + t('currency') + ' • ' : '' }}{{ beer.vol }}l • {{ beer.abv }}%
           </span>
         </div>
         <div class="header-actions">
@@ -83,23 +85,23 @@ function ratingIcon(beer) {
     <!-- Edit mode -->
     <div v-else class="beer-edit-form">
       <div class="beer-edit-inputs">
-        <input v-model="editName"  type="text"   placeholder="Název"  style="flex-grow: 2; min-width: 120px;">
+        <input v-model="editName"  type="text"   :placeholder="t('beer.namePlaceholder')"  style="flex-grow: 2; min-width: 120px;">
         <select v-model="editStyle" style="flex-grow: 1; min-width: 80px;">
-          <option value="">Styl piva...</option>
-          <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="group.label">
-            <option v-for="style in group.styles" :key="style" :value="style">{{ style }}</option>
+          <option value="">{{ t('beer.stylePlaceholder') }}</option>
+          <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
+            <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
           </optgroup>
         </select>
-        <input v-model="editPrice" type="number" placeholder="Kč"     style="width: 55px;">
+        <input v-model="editPrice" type="number" :placeholder="t('beer.pricePlaceholder')" style="width: 55px;">
         <input v-model="editVol"   type="number" step="0.1"           style="width: 55px;">
         <input v-model="editAbv"   type="number" step="0.1"           style="width: 55px;">
       </div>
       <div style="display: flex; gap: 10px; justify-content: space-between;">
         <div>
-          <button type="button" class="btn-save-edit"   @click="saveEdit">Uložit</button>
-          <button type="button" class="btn-cancel-edit" @click="editing = false">Zrušit</button>
+          <button type="button" class="btn-save-edit"   @click="saveEdit">{{ t('beer.save') }}</button>
+          <button type="button" class="btn-cancel-edit" @click="editing = false">{{ t('beer.cancel') }}</button>
         </div>
-        <button type="button" class="btn-danger" style="padding: 6px 10px;" @click="onDelete">🗑️ Smazat pivo</button>
+        <button type="button" class="btn-danger" style="padding: 6px 10px;" @click="onDelete">{{ t('beer.delete') }}</button>
       </div>
     </div>
 
@@ -112,7 +114,7 @@ function ratingIcon(beer) {
           :disabled="uiState.quickSelection.length === 0"
           @click="applyQuickIncrement(beer.id)"
         >
-          + Vybraným
+          {{ t('beer.addSelected') }}
         </button>
         <button
           type="button"
@@ -120,7 +122,7 @@ function ratingIcon(beer) {
           :disabled="uiState.quickSelection.length === 0"
           @click="applyQuickDecrement(beer.id)"
         >
-          - Vybraným
+          {{ t('beer.removeSelected') }}
         </button>
       </div>
 

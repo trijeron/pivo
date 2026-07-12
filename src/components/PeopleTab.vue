@@ -1,9 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
+import { useI18n } from '../composables/useI18n.js'
 import UserModal from './UserModal.vue'
 
 const { appData, stats, addFriend } = useAppData()
+const { t, translateBeerStyle } = useI18n()
 
 const activeUserIndex = ref(null)
 const selectedUserIndex = ref(null)
@@ -46,46 +48,46 @@ const selectedUserItems = computed(() => {
           type="button"
           class="user-card-edit-icon"
           @click.stop="activeUserIndex = index"
-          title="Upravit pijáka"
+          :title="t('people.editTitle')"
         >
           ✏️
         </button>
 
         <div class="user-card-name">{{ friend.name }}</div>
-        <div class="user-card-spend">{{ stats.friendTotals[index] }} Kč</div>
+        <div class="user-card-spend">{{ stats.friendTotals[index] }} {{ t('currency') }}</div>
         <div class="user-card-bac">
           🍺 {{ stats.friendBacs[index].toFixed(2) }} ‰<br>
-          <small style="color:#7f8c8d; font-weight:normal;">Čistý za ~{{ stats.friendSobers[index].toFixed(1) }} h</small>
+          <small style="color:#7f8c8d; font-weight:normal;">{{ t('people.soberIn', { hours: stats.friendSobers[index].toFixed(1) }) }}</small>
         </div>
       </div>
     </div>
 
     <div v-if="selectedUser" class="section" style="margin-top: 10px;">
-      <h3 style="text-align: left; margin-bottom: 8px;">📋 Co má {{ selectedUser.name }}</h3>
+      <h3 style="text-align: left; margin-bottom: 8px;">{{ t('people.hasWhat', { name: selectedUser.name }) }}</h3>
 
       <div v-if="selectedUserItems.length === 0" style="color:#7f8c8d;">
-        Zatím nemá nic vypito.
+        {{ t('people.empty') }}
       </div>
 
       <div v-else class="selected-user-items">
-        <div class="selected-user-items-head">Pivo</div>
-        <div class="selected-user-items-head">Ks</div>
-        <div class="selected-user-items-head">Cena/ks</div>
-        <div class="selected-user-items-head">Celkem</div>
+        <div class="selected-user-items-head">{{ t('people.beer') }}</div>
+        <div class="selected-user-items-head">{{ t('people.count') }}</div>
+        <div class="selected-user-items-head">{{ t('people.pricePerUnit') }}</div>
+        <div class="selected-user-items-head">{{ t('people.total') }}</div>
 
         <template v-for="item in selectedUserItems" :key="item.id">
           <div>
             <strong>{{ item.name }}</strong>
-            <div v-if="item.style" style="font-size: 0.85em; color:#7f8c8d;">{{ item.style }}</div>
+            <div v-if="item.style" style="font-size: 0.85em; color:#7f8c8d;">{{ translateBeerStyle(item.style) }}</div>
           </div>
           <div>{{ item.count }}x</div>
-          <div>{{ item.price }} Kč</div>
-          <div><strong>{{ item.total }} Kč</strong></div>
+          <div>{{ item.price }} {{ t('currency') }}</div>
+          <div><strong>{{ item.total }} {{ t('currency') }}</strong></div>
         </template>
       </div>
     </div>
 
-    <button type="button" class="btn-add-friend" @click="addFriend">+ Přidat pijáka</button>
+    <button type="button" class="btn-add-friend" @click="addFriend">{{ t('people.add') }}</button>
 
     <UserModal
       v-if="activeUserIndex !== null"

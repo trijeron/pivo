@@ -1,13 +1,19 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAppData } from './composables/useAppData.js'
+import { useI18n } from './composables/useI18n.js'
 import BeerTab   from './components/BeerTab.vue'
 import AdminTab  from './components/AdminTab.vue'
 import PeopleTab from './components/PeopleTab.vue'
 
 const { appData, stats, uiState, loadData, toggleTheme } = useAppData()
+const { localeState, availableLocales, t, setLocale } = useI18n()
 
 const activeTab = ref('beers')
+
+function onLocaleChange(event) {
+  setLocale(event.target.value)
+}
 
 let ticker = null
 onMounted(() => {
@@ -20,27 +26,36 @@ onUnmounted(() => clearInterval(ticker))
 
 <template>
   <div class="app-topbar">
-    <h1>🍻 Pivní lístek</h1>
-    <button type="button" class="theme-toggle" @click="toggleTheme">
-      {{ uiState.theme === 'dark' ? '☀️ Světlý režim' : '🌙 Tmavý režim' }}
-    </button>
+    <h1>{{ t('app.title') }}</h1>
+    <div class="app-topbar-actions">
+      <label class="language-switch">
+        <span>{{ t('language') }}</span>
+        <select :value="localeState.locale" @change="onLocaleChange">
+          <option v-for="locale in availableLocales" :key="locale.code" :value="locale.code">
+            {{ locale.label }}
+          </option>
+        </select>
+      </label>
+      <button type="button" class="theme-toggle" @click="toggleTheme">
+        {{ uiState.theme === 'dark' ? t('theme.light') : t('theme.dark') }}
+      </button>
+    </div>
   </div>
 
-  <div class="table-total-box">Útrata stolu: {{ stats.tableTotal }} Kč</div>
+  <div class="table-total-box">{{ t('app.tableTotal') }}: {{ stats.tableTotal }} {{ t('currency') }}</div>
 
 
   <div class="tab-nav">
-    <button class="tab-btn" :class="{ active: activeTab === 'beers' }"   @click="activeTab = 'beers'">🍺 Piva na stole</button>
-    <button class="tab-btn" :class="{ active: activeTab === 'admin' }"   @click="activeTab = 'admin'">⚙️ Nabídka a Stůl</button>
-    <button class="tab-btn" :class="{ active: activeTab === 'people' }"  @click="activeTab = 'people'">👥 Pijáci a Útrata</button>
+    <button class="tab-btn" :class="{ active: activeTab === 'beers' }"   @click="activeTab = 'beers'">{{ t('tabs.beers') }}</button>
+    <button class="tab-btn" :class="{ active: activeTab === 'admin' }"   @click="activeTab = 'admin'">{{ t('tabs.admin') }}</button>
+    <button class="tab-btn" :class="{ active: activeTab === 'people' }"  @click="activeTab = 'people'">{{ t('tabs.people') }}</button>
   </div>
 
-  <BeerTab   v-if="activeTab === 'beers'"  />
+  <BeerTab   v-if="activeTab === 'beers'" @go-admin="activeTab = 'admin'" />
   <AdminTab  v-if="activeTab === 'admin'"  />
   <PeopleTab v-if="activeTab === 'people'" />
 
   <div class="alert-warning">
-    <strong>⚠️ Upozornění:</strong> Promile je čistě orientační.
-    Neslouží pro posouzení schopnosti řídit! (V ČR platí 0.0 ‰).
+    <strong>{{ t('app.warningTitle') }}</strong> {{ t('app.warningBody') }}
   </div>
 </template>

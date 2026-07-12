@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
+import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
 const { appData, addBeer, importBeers, resetCounts, clearAll } = useAppData()
+const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
 const newName  = ref('')
 const newStyle = ref('')
@@ -39,29 +41,29 @@ function doImport() {
   const text = importText.value.trim()
   if (!text) return
   const count = importBeers(text)
-  if (count > 0) { alert(`Naimportováno ${count} piv.`); importText.value = '' }
+  if (count > 0) { alert(t('admin.importedBeers', { count })); importText.value = '' }
 }
 
 function doReset() {
-  if (confirm('Vynulovat všem pijákům vypitá piva (vynuluje se útrata i promile)?')) resetCounts()
+  if (confirm(t('admin.resetConfirm'))) resetCounts()
 }
 
 function doClear() {
-  if (confirm('Smazat VŠECHNO a začít od nuly?')) clearAll()
+  if (confirm(t('admin.clearConfirm'))) clearAll()
 }
 </script>
 
 <template>
   <div class="tab-content">
     <div class="section">
-      <h2>Přidat pivo z nabídky</h2>
+      <h2>{{ t('admin.addBeer') }}</h2>
       <form class="add-beer-form" autocomplete="off" @submit.prevent="submitBeer">
         <div class="autocomplete-wrapper">
           <input
             v-model="newName"
             class="new-beer-name"
             type="text"
-            placeholder="Začni psát název..."
+            :placeholder="t('admin.beerNamePlaceholder')"
             required
             @focus="showAutocomplete = true"
             @blur="setTimeout(() => { showAutocomplete = false }, 150)"
@@ -69,41 +71,41 @@ function doClear() {
           <div v-if="showAutocomplete && acMatches.length" class="autocomplete-items">
             <div v-for="item in acMatches" :key="item.name" @mousedown.prevent="selectAc(item)">
               <span class="ac-name">{{ item.name }}</span>
-              <span class="ac-desc">{{ item.style }} • {{ item.price }} Kč • {{ item.abv }}%</span>
+              <span class="ac-desc">{{ translateBeerStyle(item.style) }} • {{ item.price }} {{ t('currency') }} • {{ item.abv }}%</span>
             </div>
           </div>
         </div>
         <select v-model="newStyle" class="new-beer-style">
-          <option value="">Styl piva...</option>
-          <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="group.label">
-            <option v-for="style in group.styles" :key="style" :value="style">{{ style }}</option>
+          <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
+          <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
+            <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
           </optgroup>
         </select>
-        <input v-model="newPrice" class="new-beer-price" type="number" placeholder="Cena Kč" min="0" step="0.5">
-        <input v-model="newVol"   class="new-beer-vol"   type="number" placeholder="Objem (l)" min="0.1" step="0.1">
-        <input v-model="newAbv"   class="new-beer-abv"   type="number" placeholder="Alkohol %"  min="0"   step="0.1">
-        <button type="submit" class="btn-add">+ Přidat pivo na stůl</button>
+        <input v-model="newPrice" class="new-beer-price" type="number" :placeholder="t('admin.pricePlaceholder')" min="0" step="0.5">
+        <input v-model="newVol"   class="new-beer-vol"   type="number" :placeholder="t('admin.volumePlaceholder')" min="0.1" step="0.1">
+        <input v-model="newAbv"   class="new-beer-abv"   type="number" :placeholder="t('admin.abvPlaceholder')"  min="0"   step="0.1">
+        <button type="submit" class="btn-add">{{ t('admin.addBeerToTable') }}</button>
       </form>
 
       <details>
-        <summary>Hromadný import piv ze seznamu</summary>
+        <summary>{{ t('admin.bulkImport') }}</summary>
         <p style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
-          Formát: <strong>Název - Styl - Cena - Objem - Alk(%)</strong>
+          {{ t('admin.importFormat') }} <strong>{{ t('admin.importFormatValue') }}</strong>
         </p>
-        <textarea v-model="importText" class="import-area" rows="4" placeholder="Např:&#10;Pilsner Urquell - Ležák - 65 - 0.5 - 4.4"></textarea>
-        <button type="button" class="btn-import" @click="doImport">Naimportovat</button>
+        <textarea v-model="importText" class="import-area" rows="4" :placeholder="t('admin.importPlaceholder')"></textarea>
+        <button type="button" class="btn-import" @click="doImport">{{ t('admin.importButton') }}</button>
       </details>
     </div>
 
     <div class="section">
-      <h2>Čas a Platba</h2>
+      <h2>{{ t('admin.timeAndPayment') }}</h2>
       <div class="time-setup">
-        Začátek akce (první pivo):
+        {{ t('admin.eventStart') }}
         <input v-model="appData.startTime" type="time">
       </div>
       <div class="tools-flex">
-        <button type="button" class="btn-warning" @click="doReset">🔄 Zaplaceno (Vynulovat čárky)</button>
-        <button type="button" class="btn-danger"  @click="doClear">🗑️ Smazat úplně vše</button>
+        <button type="button" class="btn-warning" @click="doReset">{{ t('admin.resetPaid') }}</button>
+        <button type="button" class="btn-danger"  @click="doClear">{{ t('admin.clearAll') }}</button>
       </div>
     </div>
   </div>

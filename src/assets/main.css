@@ -64,6 +64,9 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 
 .app-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .app-topbar h1 { margin-bottom: 0; }
+.app-topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.language-switch { display: flex; align-items: center; gap: 8px; font-weight: bold; }
+.language-switch select { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-soft); }
 .theme-toggle { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: 999px; padding: 10px 14px; cursor: pointer; font-weight: bold; box-shadow: var(--shadow-soft); }
 
 .alert-warning { background-color: var(--alert-bg); color: var(--alert-text); padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.85em; text-align: center; border: 1px solid var(--alert-border); }
@@ -75,6 +78,7 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .tab-btn:hover { background: var(--surface-hover); }
 .tab-btn.active { background: var(--surface); color: #3498db; border-bottom-color: #3498db; }
 .tab-content { animation: fadeIn 0.3s; }
+.tab-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* TAB 1: PIVA NA STOLE */
@@ -181,5 +185,9 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 
 @media (max-width: 640px) {
   .app-topbar { flex-direction: column; align-items: stretch; }
+  .app-topbar-actions { justify-content: stretch; }
+  .language-switch { justify-content: space-between; }
+  .language-switch select { flex: 1; }
   .theme-toggle { width: 100%; }
+  .tab-toolbar .btn-secondary { width: 100%; }
 }
