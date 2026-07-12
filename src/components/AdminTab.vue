@@ -4,7 +4,7 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
-const { appData, activePub, activeBeers, addPub, addBeer, importBeers, resetCounts, clearAll, setActivePub, updateBeerPrice } = useAppData()
+const { appData, activePub, activeBeers, addPub, addBeer, resetCounts, clearAll, setActivePub, updateBeerPrice } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
 function makeCurrentTime() {
@@ -125,9 +125,24 @@ function doImport() {
 }
 
 function confirmImport() {
-  const count = importBeers(importText.value, appData.activePubId, newDrinkTime.value)
-  if (count > 0) importText.value = ''
+  const beers = parsedImportBeers.value.filter(b => b.name.trim())
+  beers.forEach(b => {
+    addBeer({
+      name: b.name.trim(),
+      style: b.style,
+      price: b.price,
+      vol: b.vol,
+      abv: b.abv,
+      drinkTime: newDrinkTime.value
+    })
+  })
+  if (beers.length > 0) importText.value = ''
   showImportDialog.value = false
+}
+
+function removeImportBeer(index) {
+  parsedImportBeers.value.splice(index, 1)
+  if (parsedImportBeers.value.length === 0) showImportDialog.value = false
 }
 
 function cancelImport() {
@@ -147,20 +162,32 @@ function doClear() {
   <div class="tab-content">
     <!-- Import confirmation dialog -->
     <div v-if="showImportDialog" class="modal" @click.self="cancelImport">
-      <div class="modal-content">
+      <div class="modal-content import-modal-content">
         <span class="close-modal" @click="cancelImport">&times;</span>
         <h3>{{ t('admin.importConfirmTitle') }}</h3>
         <p style="color: var(--muted); font-size: 0.9em; margin-bottom: 10px;">
           {{ t('admin.importConfirmSubtitle', { count: parsedImportBeers.length }) }}
         </p>
-        <ul class="import-preview-list">
-          <li v-for="(beer, i) in parsedImportBeers" :key="i" class="import-preview-item">
-            <span class="import-preview-name">{{ beer.name }}</span>
-            <span class="import-preview-meta">{{ beer.price }} {{ t('currency') }} · {{ beer.vol }}l · {{ beer.abv }}%</span>
-          </li>
-        </ul>
+        <div class="import-edit-header">
+          <span>{{ t('admin.importColName') }}</span>
+          <span>{{ t('admin.importColStyle') }}</span>
+          <span>{{ t('admin.importColPrice') }}</span>
+          <span>{{ t('admin.importColVol') }}</span>
+          <span>{{ t('admin.importColAbv') }}</span>
+          <span></span>
+        </div>
+        <div class="import-edit-list">
+          <div v-for="(beer, i) in parsedImportBeers" :key="i" class="import-edit-row">
+            <input v-model="beer.name" class="import-edit-name" type="text" :placeholder="t('admin.beerNamePlaceholder')">
+            <input v-model="beer.style" class="import-edit-style" type="text" :placeholder="t('admin.beerStylePlaceholder')">
+            <input v-model.number="beer.price" class="import-edit-num" type="number" min="0" step="0.5">
+            <input v-model.number="beer.vol" class="import-edit-num" type="number" min="0.1" step="0.1">
+            <input v-model.number="beer.abv" class="import-edit-num" type="number" min="0" step="0.1">
+            <button type="button" class="import-edit-remove" :title="t('admin.importRemoveBeer')" @click="removeImportBeer(i)">✕</button>
+          </div>
+        </div>
         <div class="import-dialog-actions">
-          <button type="button" class="btn-import" @click="confirmImport">{{ t('admin.importConfirm') }}</button>
+          <button type="button" class="btn-import" :disabled="parsedImportBeers.length === 0" @click="confirmImport">{{ t('admin.importConfirm') }}</button>
           <button type="button" class="btn-secondary" @click="cancelImport">{{ t('admin.importCancel') }}</button>
         </div>
       </div>

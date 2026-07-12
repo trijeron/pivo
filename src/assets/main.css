@@ -161,13 +161,16 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .price-list-empty { color: var(--muted); text-align: center; padding: 12px 0; font-style: italic; }
 
 /* Import preview dialog */
-.import-preview-list { list-style: none; padding: 0; margin: 0 0 16px 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
-.import-preview-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); gap: 10px; }
-.import-preview-item:last-child { border-bottom: none; }
-.import-preview-name { font-weight: bold; color: var(--heading); }
-.import-preview-meta { font-size: 0.85em; color: var(--muted); white-space: nowrap; }
+.import-modal-content { max-width: 660px !important; width: 95% !important; }
+.import-edit-header { display: grid; grid-template-columns: 2fr 1.5fr 60px 60px 60px 28px; gap: 4px; padding: 0 2px 4px; font-size: 0.78em; font-weight: bold; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.import-edit-list { display: flex; flex-direction: column; gap: 5px; max-height: 300px; overflow-y: auto; margin-bottom: 14px; }
+.import-edit-row { display: grid; grid-template-columns: 2fr 1.5fr 60px 60px 60px 28px; gap: 4px; align-items: center; }
+.import-edit-name, .import-edit-style { padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); font-size: 0.9em; min-width: 0; }
+.import-edit-num { padding: 6px 4px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); font-size: 0.9em; text-align: right; width: 100%; min-width: 0; }
+.import-edit-remove { background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: bold; padding: 0; height: 28px; display: flex; align-items: center; justify-content: center; }
 .import-dialog-actions { display: flex; gap: 8px; }
 .import-dialog-actions .btn-import { flex: 1; }
+.import-dialog-actions .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
 .import-dialog-actions .btn-secondary { flex: 1; text-align: center; }
 
 /* TAB 3: PIJÁCI A ÚTRATA */
