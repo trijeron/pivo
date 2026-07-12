@@ -1,15 +1,54 @@
 import { reactive, computed } from 'vue'
+import { beerCatalog } from '../data/beerCatalog.js'
 import { useI18n } from './useI18n.js'
 
 const STORAGE_KEY = 'beerAppDataV6'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
+const PUB_STORAGE_KEY = 'beerPubCatalogsV1'
+const ACTIVE_PUB_STORAGE_KEY = 'beerActivePubV1'
 
 const { t } = useI18n()
+
+function makeId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
 
 function makeDefaultFriends() {
   return [
     { name: t('defaults.me'), weight: 80, gender: 'm' }
   ]
+}
+
+function normalizeBeerDetails({ name, style, price, vol, abv }, fallbackName = t('defaults.unknownBeer')) {
+  return {
+    name: String(name || fallbackName).trim() || fallbackName,
+    style: String(style || '').trim(),
+    price: parseFloat(price) || 0,
+    vol: parseFloat(vol) || 0.5,
+    abv: parseFloat(abv) || 5.0
+  }
+}
+
+function normalizeCatalogBeer(beer, fallbackName) {
+  return {
+    id: beer?.id || makeId('catalog-beer'),
+    ...normalizeBeerDetails(beer || {}, fallbackName)
+  }
+}
+
+function makeDefaultPubCatalog() {
+  return beerCatalog.map((beer, index) => normalizeCatalogBeer({
+    ...beer,
+    id: `default-beer-${index}`
+  }))
+}
+
+function makeDefaultPub(number = 1) {
+  return {
+    id: number === 1 ? 'default-pub-1' : makeId('pub'),
+    name: t('defaults.pub', { number }),
+    catalog: number === 1 ? makeDefaultPubCatalog() : []
+  }
 }
 
 function makeDefaultStart() {
@@ -29,6 +68,21 @@ const uiState = reactive({
   quickMode: 'single',
   quickSelection: [0]
 })
+
+const pubsState = reactive({
+  activePubId: 'default-pub-1',
+  pubs: [makeDefaultPub()]
+})
+
+function ensurePubs() {
+  if (!Array.isArray(pubsState.pubs) || pubsState.pubs.length === 0) {
+    pubsState.pubs = [makeDefaultPub()]
+  }
+
+  if (!pubsState.pubs.some(pub => pub.id === pubsState.activePubId)) {
+    pubsState.activePubId = pubsState.pubs[0]?.id || null
+  }
+}
 
 function syncTheme() {
   if (typeof document !== 'undefined') {
@@ -64,6 +118,38 @@ function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)) } catch (e) {}
 }
 
+function savePubCatalogs() {
+  ensurePubs()
+  try {
+    localStorage.setItem(PUB_STORAGE_KEY, JSON.stringify(pubsState.pubs))
+    localStorage.setItem(ACTIVE_PUB_STORAGE_KEY, pubsState.activePubId || '')
+  } catch (e) {}
+}
+
+function loadPubCatalogs() {
+  try {
+    const raw = localStorage.getItem(PUB_STORAGE_KEY)
+    const activePubId = localStorage.getItem(ACTIVE_PUB_STORAGE_KEY)
+
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        pubsState.pubs = parsed.map((pub, index) => ({
+          id: pub?.id || makeId('pub'),
+          name: String(pub?.name || t('defaults.pub', { number: index + 1 })).trim() || t('defaults.pub', { number: index + 1 }),
+          catalog: Array.isArray(pub?.catalog)
+            ? pub.catalog.map((beer, beerIndex) => normalizeCatalogBeer(beer, `${t('defaults.unknownBeer')} ${beerIndex + 1}`))
+            : []
+        }))
+      }
+    }
+
+    pubsState.activePubId = activePubId || pubsState.activePubId
+  } catch (e) {}
+
+  ensurePubs()
+}
+
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('beerAppDataV5')
@@ -91,6 +177,7 @@ function loadData() {
     if (beer.abv === undefined) beer.abv = 5.0
   })
 
+  loadPubCatalogs()
   loadTheme()
   normalizeQuickSelection()
 }
@@ -191,35 +278,101 @@ function adjustRating(beerId, field, delta) {
 }
 
 function addBeer({ name, style, price, vol, abv }) {
+  const details = normalizeBeerDetails({ name, style, price, vol, abv })
   appData.beers.unshift({
-    id: Date.now(),
-    name, style,
-    price: parseFloat(price) || 0,
-    vol: parseFloat(vol) || 0.5,
-    abv: parseFloat(abv) || 5.0,
-    counts: new Array(appData.friends.length).fill(0),
-    likes: 0, dislikes: 0
+   id: Date.now(),
+   ...details,
+   counts: new Array(appData.friends.length).fill(0),
+   likes: 0, dislikes: 0
   })
   saveData()
 }
 
+const activePub = computed(() => pubsState.pubs.find(pub => pub.id === pubsState.activePubId) || pubsState.pubs[0] || null)
+
+function selectPub(pubId) {
+  if (!pubsState.pubs.some(pub => pub.id === pubId)) return
+  pubsState.activePubId = pubId
+  savePubCatalogs()
+}
+
+function addPub(name) {
+  const pubNumber = pubsState.pubs.length + 1
+  const pub = {
+   id: makeId('pub'),
+   name: String(name || '').trim() || t('defaults.pub', { number: pubNumber }),
+   catalog: []
+  }
+
+  pubsState.pubs.push(pub)
+  pubsState.activePubId = pub.id
+  savePubCatalogs()
+  return pub
+}
+
+function saveCatalogBeer(beerId, { name, style, price, vol, abv }) {
+  const pub = activePub.value
+  if (!pub) return null
+
+  const details = normalizeBeerDetails({ name, style, price, vol, abv })
+  const existingBeer = pub.catalog.find(beer => beer.id === beerId)
+
+  if (existingBeer) {
+   Object.assign(existingBeer, details)
+   savePubCatalogs()
+   return existingBeer
+  }
+
+  const createdBeer = {
+   id: makeId('catalog-beer'),
+   ...details
+  }
+  pub.catalog.unshift(createdBeer)
+  savePubCatalogs()
+  return createdBeer
+}
+
+function deleteCatalogBeer(beerId) {
+  const pub = activePub.value
+  if (!pub) return
+
+  const index = pub.catalog.findIndex(beer => beer.id === beerId)
+  if (index === -1) return
+
+  pub.catalog.splice(index, 1)
+  savePubCatalogs()
+}
+
+function addCatalogBeerToTable(beerId) {
+  const pub = activePub.value
+  const beer = pub?.catalog.find(item => item.id === beerId)
+  if (!beer) return
+
+  addBeer(beer)
+}
+
 function importBeers(text) {
+  const pub = activePub.value
+  if (!pub) return 0
+
   let count = 0
   text.split('\n').forEach((line, index) => {
-    if (line.trim()) {
-      const parts = line.split(' - ').map(p => p.trim())
-      if (parts.length > 0) {
-        appData.beers.push({
-          id: Date.now() + index, name: parts[0], style: parts[1] || '',
-          price: parseFloat(parts[2]) || 0, vol: parseFloat(parts[3]) || 0.5,
-          abv: parseFloat(parts[4]) || 5.0, counts: new Array(appData.friends.length).fill(0),
-          likes: 0, dislikes: 0
-        })
-        count++
-      }
-    }
+   if (line.trim()) {
+     const parts = line.split(' - ').map(p => p.trim())
+     if (parts.length > 0) {
+       pub.catalog.push(normalizeCatalogBeer({
+         id: `imported-${Date.now()}-${index}`,
+         name: parts[0],
+         style: parts[1] || '',
+         price: parts[2],
+         vol: parts[3],
+         abv: parts[4]
+       }))
+       count++
+     }
+   }
   })
-  if (count > 0) saveData()
+  if (count > 0) savePubCatalogs()
   return count
 }
 
@@ -318,10 +471,13 @@ loadTheme()
 export function useAppData() {
   return {
     appData, stats, uiState,
+    pubsState, activePub,
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, importBeers,
+    selectPub, addPub,
+    saveCatalogBeer, deleteCatalogBeer, addCatalogBeerToTable,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearAll,
     setTheme, toggleTheme,

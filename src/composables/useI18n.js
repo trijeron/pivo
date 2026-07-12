@@ -37,23 +37,34 @@ const translations = {
       emptyHint: 'Přidejte ho v administraci piv.'
     },
     admin: {
-      addBeer: 'Přidat pivo z nabídky',
+      addBeer: 'Správa katalogu piv',
+      pubCatalog: '🏠 Katalog piv podniku',
+      selectPub: 'Vybraný podnik',
+      pubNamePlaceholder: 'Název nového podniku',
+      createPub: '+ Přidat podnik',
+      catalogFor: 'Katalog pro: {name}',
+      addCatalogBeer: '+ Uložit pivo do katalogu',
+      saveCatalogBeerChanges: '💾 Uložit změny piva',
+      editCatalogBeer: '✏️ Upravit',
+      deleteCatalogBeer: '🗑️ Smazat z katalogu',
+      deleteCatalogBeerConfirm: 'Opravdu smazat pivo "{name}" z katalogu podniku?',
+      catalogEmpty: 'Tento podnik zatím nemá žádná piva v katalogu.',
       beerNamePlaceholder: 'Začni psát název...',
       beerStylePlaceholder: 'Styl piva...',
       pricePlaceholder: 'Cena Kč',
       volumePlaceholder: 'Objem (l)',
       abvPlaceholder: 'Alkohol %',
-      addBeerToTable: '+ Přidat pivo na stůl',
-      bulkImport: 'Hromadný import piv ze seznamu',
+      addBeerToTable: '+ Přidat na stůl',
+      bulkImport: 'Hromadný import piv do katalogu',
       importFormat: 'Formát:',
       importFormatValue: 'Název - Styl - Cena - Objem - Alk(%)',
       importPlaceholder: 'Např:\nPilsner Urquell - Ležák - 65 - 0.5 - 4.4',
-      importButton: 'Naimportovat',
+      importButton: 'Naimportovat do katalogu',
       timeAndPayment: 'Čas a platba',
       eventStart: 'Začátek akce (první pivo):',
       resetPaid: '🔄 Zaplaceno (vynulovat čárky)',
       clearAll: '🗑️ Smazat úplně vše',
-      importedBeers: 'Naimportováno {count} piv.',
+      importedBeers: 'Naimportováno {count} piv do katalogu.',
       resetConfirm: 'Vynulovat všem pijákům vypitá piva (vynuluje se útrata i promile)?',
       clearConfirm: 'Smazat VŠECHNO a začít od nuly?'
     },
@@ -93,7 +104,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Neznámé pivo',
       friend: 'Kámoš {number}',
-      me: 'Já'
+      me: 'Já',
+      pub: 'Můj podnik {number}'
     }
   },
   en: {
@@ -120,23 +132,34 @@ const translations = {
       emptyHint: 'Add them in beer administration.'
     },
     admin: {
-      addBeer: 'Add beer from menu',
+      addBeer: 'Manage beer catalog',
+      pubCatalog: '🏠 Pub beer catalog',
+      selectPub: 'Selected pub',
+      pubNamePlaceholder: 'New pub name',
+      createPub: '+ Add pub',
+      catalogFor: 'Catalog for: {name}',
+      addCatalogBeer: '+ Save beer to catalog',
+      saveCatalogBeerChanges: '💾 Save beer changes',
+      editCatalogBeer: '✏️ Edit',
+      deleteCatalogBeer: '🗑️ Remove from catalog',
+      deleteCatalogBeerConfirm: 'Do you really want to remove "{name}" from this pub catalog?',
+      catalogEmpty: 'This pub does not have any beers in its catalog yet.',
       beerNamePlaceholder: 'Start typing a name...',
       beerStylePlaceholder: 'Beer style...',
       pricePlaceholder: 'Price CZK',
       volumePlaceholder: 'Volume (l)',
       abvPlaceholder: 'Alcohol %',
-      addBeerToTable: '+ Add beer to table',
-      bulkImport: 'Bulk import beers from list',
+      addBeerToTable: '+ Add to table',
+      bulkImport: 'Bulk import beers into catalog',
       importFormat: 'Format:',
       importFormatValue: 'Name - Style - Price - Volume - ABV(%)',
       importPlaceholder: 'Example:\nPilsner Urquell - Lager - 65 - 0.5 - 4.4',
-      importButton: 'Import',
+      importButton: 'Import to catalog',
       timeAndPayment: 'Time and payment',
       eventStart: 'Start time (first beer):',
       resetPaid: '🔄 Paid (reset tallies)',
       clearAll: '🗑️ Delete everything',
-      importedBeers: 'Imported {count} beers.',
+      importedBeers: 'Imported {count} beers into the catalog.',
       resetConfirm: 'Reset consumed beers for all drinkers (this also resets totals and BAC)?',
       clearConfirm: 'Delete EVERYTHING and start from scratch?'
     },
@@ -176,7 +199,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Unknown beer',
       friend: 'Friend {number}',
-      me: 'Me'
+      me: 'Me',
+      pub: 'My pub {number}'
     }
   },
   de: {
@@ -203,23 +227,34 @@ const translations = {
       emptyHint: 'Füge es in der Bierverwaltung hinzu.'
     },
     admin: {
-      addBeer: 'Bier aus dem Angebot hinzufügen',
+      addBeer: 'Bierkatalog verwalten',
+      pubCatalog: '🏠 Bierkatalog der Kneipe',
+      selectPub: 'Ausgewählte Kneipe',
+      pubNamePlaceholder: 'Name der neuen Kneipe',
+      createPub: '+ Kneipe hinzufügen',
+      catalogFor: 'Katalog für: {name}',
+      addCatalogBeer: '+ Bier im Katalog speichern',
+      saveCatalogBeerChanges: '💾 Bieränderungen speichern',
+      editCatalogBeer: '✏️ Bearbeiten',
+      deleteCatalogBeer: '🗑️ Aus Katalog löschen',
+      deleteCatalogBeerConfirm: 'Möchtest du "{name}" wirklich aus diesem Kneipenkatalog löschen?',
+      catalogEmpty: 'Diese Kneipe hat noch keine Biere im Katalog.',
       beerNamePlaceholder: 'Name eingeben...',
       beerStylePlaceholder: 'Bierstil...',
       pricePlaceholder: 'Preis CZK',
       volumePlaceholder: 'Volumen (l)',
       abvPlaceholder: 'Alkohol %',
-      addBeerToTable: '+ Bier auf den Tisch',
-      bulkImport: 'Biere gesammelt aus Liste importieren',
+      addBeerToTable: '+ Auf den Tisch',
+      bulkImport: 'Biere gesammelt in den Katalog importieren',
       importFormat: 'Format:',
       importFormatValue: 'Name - Stil - Preis - Volumen - Alkohol(%)',
       importPlaceholder: 'Beispiel:\nPilsner Urquell - Lager - 65 - 0.5 - 4.4',
-      importButton: 'Importieren',
+      importButton: 'In Katalog importieren',
       timeAndPayment: 'Zeit und Bezahlung',
       eventStart: 'Beginn der Runde (erstes Bier):',
       resetPaid: '🔄 Bezahlt (Striche zurücksetzen)',
       clearAll: '🗑️ Alles löschen',
-      importedBeers: '{count} Biere importiert.',
+      importedBeers: '{count} Biere in den Katalog importiert.',
       resetConfirm: 'Getrunkene Biere für alle Trinker zurücksetzen (setzt auch Kosten und Promille zurück)?',
       clearConfirm: 'ALLES löschen und von vorne anfangen?'
     },
@@ -259,7 +294,8 @@ const translations = {
     defaults: {
       unknownBeer: 'Unbekanntes Bier',
       friend: 'Freund {number}',
-      me: 'Ich'
+      me: 'Ich',
+      pub: 'Meine Kneipe {number}'
     }
   }
 }
