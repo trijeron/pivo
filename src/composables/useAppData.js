@@ -1,12 +1,17 @@
 import { reactive, computed } from 'vue'
+import { useI18n } from './useI18n.js'
 
 const STORAGE_KEY = 'beerAppDataV6'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
 
-const defaultFriends = [
-  { name: 'Jan', weight: 85, gender: 'm' },
-  { name: 'Kámoš 2', weight: 75, gender: 'm' }
-]
+const { t } = useI18n()
+
+function makeDefaultFriends() {
+  return [
+    { name: t('defaults.friend', { number: 1 }), weight: 85, gender: 'm' },
+    { name: t('defaults.friend', { number: 2 }), weight: 75, gender: 'm' }
+  ]
+}
 
 function makeDefaultStart() {
   const now = new Date()
@@ -16,7 +21,7 @@ function makeDefaultStart() {
 // Module-level singleton so all components share the same state
 const appData = reactive({
   startTime: makeDefaultStart(),
-  friends: JSON.parse(JSON.stringify(defaultFriends)),
+  friends: makeDefaultFriends(),
   beers: []
 })
 
@@ -66,7 +71,7 @@ function loadData() {
     if (raw) {
       const parsed = JSON.parse(raw)
       appData.startTime = parsed.startTime || makeDefaultStart()
-      appData.friends = parsed.friends || JSON.parse(JSON.stringify(defaultFriends))
+      appData.friends = parsed.friends || makeDefaultFriends()
       appData.beers = parsed.beers || []
     }
   } catch (e) {}
@@ -144,7 +149,7 @@ function decrementCount(beerId, friendIndex) {
 function saveBeerEdit(beerId, { name, style, price, vol, abv }) {
   const beer = appData.beers.find(b => b.id === beerId)
   if (beer) {
-    beer.name = name || 'Neznámé pivo'
+    beer.name = name || t('defaults.unknownBeer')
     beer.style = style
     beer.price = parseFloat(price) || 0
     beer.vol = parseFloat(vol) || 0.5
@@ -220,14 +225,14 @@ function importBeers(text) {
 }
 
 function addFriend() {
-  appData.friends.push({ name: `Kámoš ${appData.friends.length + 1}`, weight: 80, gender: 'm' })
+  appData.friends.push({ name: t('defaults.friend', { number: appData.friends.length + 1 }), weight: 80, gender: 'm' })
   appData.beers.forEach(b => b.counts.push(0))
   normalizeQuickSelection()
   saveData()
 }
 
 function updateFriend(index, field, value) {
-  if (field === 'name' && !String(value).trim()) value = `Kámoš ${index + 1}`
+  if (field === 'name' && !String(value).trim()) value = t('defaults.friend', { number: index + 1 })
   appData.friends[index][field] = value
   saveData()
 }
@@ -250,7 +255,7 @@ function resetCounts() {
 
 function clearAll() {
   appData.startTime = makeDefaultStart()
-  appData.friends = JSON.parse(JSON.stringify(defaultFriends))
+  appData.friends = makeDefaultFriends()
   appData.beers = []
   uiState.quickMode = 'single'
   uiState.quickSelection = [0]
