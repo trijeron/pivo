@@ -29,7 +29,7 @@ const translations = {
     tabs: {
       beers: '🍺 Piva na stole',
       admin: '⚙️ Nabídka a stůl',
-      people: '👥 Pijáci a útrata'
+      people: '👥 Kamarádi a útrata'
     },
     beerTab: {
       manage: '⚙️ Správa piv',
@@ -69,7 +69,7 @@ const translations = {
       removeSelected: '- Vybraným'
     },
     people: {
-      editTitle: 'Upravit pijáka',
+      editTitle: 'Upravit kamaráda',
       soberIn: 'Čistý za ~{hours} h',
       hasWhat: '📋 Co má {name}',
       empty: 'Zatím nemá nic vypito.',
@@ -77,18 +77,18 @@ const translations = {
       count: 'Ks',
       pricePerUnit: 'Cena/ks',
       total: 'Celkem',
-      add: '+ Přidat pijáka'
+      add: '+ Přidat kamaráda'
     },
     userModal: {
-      title: '⚙️ Nastavení pijáka',
+      title: '⚙️ Nastavení kamaráda',
       name: 'Jméno:',
       weight: 'Váha (kg):',
       gender: 'Pohlaví:',
       male: 'Muž',
       female: 'Žena',
-      delete: '🗑️ Smazat pijáka',
+      delete: '🗑️ Smazat kamaráda',
       mustHaveOne: 'Někdo to pít musí!',
-      deleteConfirm: 'Opravdu smazat pijáka "{name}" ze stolu?'
+      deleteConfirm: 'Opravdu smazat kamaráda "{name}" ze stolu?'
     },
     defaults: {
       unknownBeer: 'Neznámé pivo',

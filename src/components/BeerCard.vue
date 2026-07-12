@@ -107,24 +107,6 @@ function ratingIcon(beer) {
 
     <!-- Friend tally buttons -->
     <div class="beer-friends-list">
-      <div class="beer-quick-actions">
-        <button
-          type="button"
-          class="btn-quick-apply"
-          :disabled="uiState.quickSelection.length === 0"
-          @click="applyQuickIncrement(beer.id)"
-        >
-          {{ t('beer.addSelected') }}
-        </button>
-        <button
-          type="button"
-          class="btn-quick-apply btn-quick-remove"
-          :disabled="uiState.quickSelection.length === 0"
-          @click="applyQuickDecrement(beer.id)"
-        >
-          {{ t('beer.removeSelected') }}
-        </button>
-      </div>
 
       <div v-for="(friend, fi) in appData.friends" :key="fi" class="friend-pill-wrapper">
         <button type="button" class="friend-pill" @click="incrementCount(beer.id, fi)">
