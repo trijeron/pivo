@@ -88,7 +88,7 @@ function submitBeer() {
   const importedBeer = simpleImport.value ? (selectedCatalogBeer.value || findCatalogBeerByName(newName.value)) : null
   addBeer({
     name: importedBeer?.name || newName.value.trim(),
-    style: importedBeer?.style || newStyle.value.trim(),
+    style: newStyle.value,
     price: newPrice.value,
     vol: importedBeer?.vol ?? newVol.value,
     abv: importedBeer?.abv ?? newAbv.value,
@@ -237,7 +237,7 @@ function doClear() {
         <p v-if="simpleImport && selectedCatalogBeerDetails" class="catalog-hint">
           {{ selectedCatalogBeerDetails }}
         </p>
-        <select v-if="!simpleImport" v-model="newStyle" class="new-beer-style">
+        <select v-model="newStyle" class="new-beer-style">
           <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
           <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
             <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
