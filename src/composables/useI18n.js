@@ -34,8 +34,19 @@ const translations = {
     beerTab: {
       pubLabel: 'Hospoda',
       manage: '⚙️ Správa piv',
+      addOther: '🍔🥃 Přidat další',
       empty: 'Na stole zatím neleží žádné pivo.',
       emptyHint: 'Přidejte ho v administraci piv.'
+    },
+    otherModal: {
+      title: '🍔🥃 Přidat položku',
+      userLabel: 'Kamarád',
+      typeLabel: 'Typ',
+      priceLabel: 'Cena',
+      foodOption: 'Jídlo',
+      shotOption: 'Panák',
+      bigShotOption: 'Velký panák',
+      addButton: 'Přidat na účet'
     },
     admin: {
       pubCatalog: 'Hospody a nabídka',
@@ -141,8 +152,19 @@ const translations = {
     beerTab: {
       pubLabel: 'Pub',
       manage: '⚙️ Beer administration',
+      addOther: '🍔🥃 Add other',
       empty: 'There are no beers on the table yet.',
       emptyHint: 'Add them in beer administration.'
+    },
+    otherModal: {
+      title: '🍔🥃 Add item',
+      userLabel: 'Drinker',
+      typeLabel: 'Type',
+      priceLabel: 'Price',
+      foodOption: 'Food',
+      shotOption: 'Shot',
+      bigShotOption: 'Big shot',
+      addButton: 'Add to account'
     },
     admin: {
       pubCatalog: 'Pubs and menu',
@@ -248,8 +270,19 @@ const translations = {
     beerTab: {
       pubLabel: 'Kneipe',
       manage: '⚙️ Bierverwaltung',
+      addOther: '🍔🥃 Anderes hinzufügen',
       empty: 'Auf dem Tisch liegt noch kein Bier.',
       emptyHint: 'Füge es in der Bierverwaltung hinzu.'
+    },
+    otherModal: {
+      title: '🍔🥃 Posten hinzufügen',
+      userLabel: 'Trinker',
+      typeLabel: 'Typ',
+      priceLabel: 'Preis',
+      foodOption: 'Essen',
+      shotOption: 'Shot',
+      bigShotOption: 'Großer Shot',
+      addButton: 'Zum Konto hinzufügen'
     },
     admin: {
       pubCatalog: 'Kneipen und Angebot',
