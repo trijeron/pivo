@@ -389,6 +389,27 @@ function updateBeerPrice(beerId, price) {
   }
 }
 
+function moveBeerInPub(beerId, direction) {
+  const pubEntries = appData.beers
+    .map((beer, index) => ({ beer, index }))
+    .filter(({ beer }) => beer.pubId === appData.activePubId)
+
+  const pos = pubEntries.findIndex(({ beer }) => beer.id === beerId)
+  if (pos === -1) return
+
+  const swapPos = direction === 'up' ? pos - 1 : pos + 1
+  if (swapPos < 0 || swapPos >= pubEntries.length) return
+
+  const indexA = pubEntries[pos].index
+  const indexB = pubEntries[swapPos].index
+
+  const temp = appData.beers[indexA]
+  appData.beers[indexA] = appData.beers[indexB]
+  appData.beers[indexB] = temp
+
+  saveData()
+}
+
 function addFriend() {
   appData.friends.push({ name: t('defaults.friend', { number: appData.friends.length + 1 }), weight: 80, gender: 'm' })
   appData.beers.forEach(b => b.counts.push(0))
@@ -516,7 +537,7 @@ export function useAppData() {
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
-    addBeer, addOtherForFriend, importBeers, updateBeerPrice,
+    addBeer, addOtherForFriend, importBeers, updateBeerPrice, moveBeerInPub,
     setActivePub, addPub,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearActivePubDrinking, clearAll,

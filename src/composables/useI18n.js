@@ -86,7 +86,9 @@ const translations = {
       importColVol: 'Objem',
       importColAbv: 'Alk%',
       pubPriceList: 'Rychlá správa cen — {pub}',
-      noPubBeers: 'V této hospodě zatím nejsou žádná piva.'
+      noPubBeers: 'V této hospodě zatím nejsou žádná piva.',
+      moveUp: 'Posunout nahoru',
+      moveDown: 'Posunout dolů'
     },
     beer: {
       deleteConfirm: 'Opravdu trvale smazat toto pivo z lístku?',
@@ -204,7 +206,9 @@ const translations = {
       importColVol: 'Vol',
       importColAbv: 'ABV%',
       pubPriceList: 'Quick price management — {pub}',
-      noPubBeers: 'No beers in this pub yet.'
+      noPubBeers: 'No beers in this pub yet.',
+      moveUp: 'Move up',
+      moveDown: 'Move down'
     },
     beer: {
       deleteConfirm: 'Do you really want to permanently delete this beer from the menu?',
@@ -322,7 +326,9 @@ const translations = {
       importColVol: 'Vol',
       importColAbv: 'Alk%',
       pubPriceList: 'Schnelle Preisverwaltung — {pub}',
-      noPubBeers: 'In dieser Kneipe gibt es noch keine Biere.'
+      noPubBeers: 'In dieser Kneipe gibt es noch keine Biere.',
+      moveUp: 'Nach oben',
+      moveDown: 'Nach unten'
     },
     beer: {
       deleteConfirm: 'Möchtest du dieses Bier wirklich dauerhaft aus der Karte löschen?',
