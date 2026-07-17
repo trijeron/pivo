@@ -303,7 +303,7 @@ function addToCatalog({ name, style, vol, abv }) {
       name,
       style: style || '',
       vol: parseFloat(vol) || 0.5,
-      abv: parseFloat(abv) || 5.0
+      abv: !isNaN(parseFloat(abv)) ? parseFloat(abv) : 5.0
     })
   }
 }
@@ -316,7 +316,7 @@ function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId, dr
     name, style,
     price: parseFloat(price) || 0,
     vol: parseFloat(vol) || 0.5,
-    abv: parseFloat(abv) || 5.0,
+    abv: !isNaN(parseFloat(abv)) ? parseFloat(abv) : 5.0,
     drinkTime: String(drinkTime || makeCurrentTime()),
     counts: new Array(appData.friends.length).fill(0),
     likes: 0, dislikes: 0
@@ -333,7 +333,7 @@ function importBeers(text, pubId = appData.activePubId, drinkTime = makeCurrentT
         const name = parts[0]
         const style = parts[1] || ''
         const vol = parseFloat(parts[3]) || 0.5
-        const abv = parseFloat(parts[4]) || 5.0
+        const abv = !isNaN(parseFloat(parts[4])) ? parseFloat(parts[4]) : 5.0
         addToCatalog({ name, style, vol, abv })
         appData.beers.push({
           id: Date.now() + index, pubId, name, style,
