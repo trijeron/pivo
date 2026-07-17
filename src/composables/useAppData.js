@@ -116,33 +116,72 @@ function parseTimeToDate(timeValue, fallbackTime) {
 }
 
 function computeStatsForBeers(beers) {
-  let tableTotal = 0
-  const friendTotals = new Array(appData.friends.length).fill(0)
-  const friendBacContrib = new Array(appData.friends.length).fill(0)
-  const now = new Date()
+  let tableTotal = 0;
+  const friendTotals = new Array(appData.friends.length).fill(0);
+  
+  // Místo průběžného počítání promile si uložíme celkové gramy alkoholu a čas prvního drinku
+  const friendGramsAlcohol = new Array(appData.friends.length).fill(0);
+  const friendFirstDrinkTimes = new Array(appData.friends.length).fill(null);
+  
+  const now = new Date();
 
   beers.forEach(beer => {
-    const price = parseFloat(beer.price) || 0
-    const gramsPerBeer = (parseFloat(beer.vol) || 0) * 1000 * ((parseFloat(beer.abv) || 0) / 100) * 0.8
-    const beerTime = parseTimeToDate(beer.drinkTime, appData.startTime)
-    const hoursElapsed = Math.max(0, (now - beerTime) / (1000 * 60 * 60))
+    const price = parseFloat(beer.price) || 0;
+    const abv = parseFloat(beer.abv) || 0;
+    const vol = parseFloat(beer.vol) || 0;
+    
+    // Zjistíme, zda jde o alkoholický nápoj (nealko piva mohou mít např. 0.5, Birell má 0)
+    const isAlcoholic = abv > 0; 
+    const gramsPerBeer = vol * 1000 * (abv / 100) * 0.8;
+    const beerTime = parseTimeToDate(beer.drinkTime, appData.startTime);
 
     beer.counts.forEach((count, fi) => {
-      if (!count) return
-      friendTotals[fi] += count * price
-      tableTotal += count * price
+      if (!count) return;
 
-      const friend = appData.friends[fi] || {}
-      const bodyWeight = (parseFloat(friend.weight) || 80) * (friend.gender === 'f' ? 0.55 : 0.68)
-      const theoreticalBac = (count * gramsPerBeer) / bodyWeight
-      friendBacContrib[fi] += Math.max(0, theoreticalBac - hoursElapsed * 0.15)
-    })
-  })
+      // 1. Útrata (počítáme vždy, i pro nealko)
+      friendTotals[fi] += count * price;
+      tableTotal += count * price;
 
-  const friendBacs = friendBacContrib.map(v => Math.max(0, v))
-  const friendSobers = friendBacs.map(v => (v > 0 ? v / 0.15 : 0))
-  return { tableTotal, friendTotals, friendBacs, friendSobers }
+      // 2. Alkohol (počítáme jen pokud to má nějaké volty)
+      if (isAlcoholic) {
+        friendGramsAlcohol[fi] += count * gramsPerBeer;
+
+        // Uložíme si čas úplně prvního ALKOHOLICKÉHO drinku pro start metabolismu
+        if (!friendFirstDrinkTimes[fi] || beerTime < friendFirstDrinkTimes[fi]) {
+          friendFirstDrinkTimes[fi] = beerTime;
+        }
+      }
+    });
+  });
+
+  // 3. Finální výpočet BAC (promile) pro každého kamaráda najednou
+  const friendBacs = friendGramsAlcohol.map((totalGrams, fi) => {
+    // Pokud vypil jen nealko (nebo nic), má rovnou 0
+    if (totalGrams === 0) return 0; 
+
+    const friend = appData.friends[fi] || {};
+    const r = friend.gender === 'f' ? 0.55 : 0.68;
+    const bodyWeight = (parseFloat(friend.weight) || 80) * r;
+
+    // Teoretické promile, kdyby se nic neodbourávalo
+    const theoreticalBac = totalGrams / bodyWeight;
+
+    // Kolik hodin uběhlo od PRVNÍHO piva s alkoholem
+    const hoursElapsed = Math.max(0, (now - friendFirstDrinkTimes[fi]) / (1000 * 60 * 60));
+
+    // Játra pálí cca 0.15 promile za hodinu
+    const currentBac = theoreticalBac - (hoursElapsed * 0.15);
+
+    return Math.max(0, currentBac);
+  });
+
+  // 4. Výpočet hodin do vystřízlivění
+  const friendSobers = friendBacs.map(v => (v > 0 ? v / 0.15 : 0));
+
+  return { tableTotal, friendTotals, friendBacs, friendSobers };
 }
+
+ 
 
 function loadData() {
   try {
