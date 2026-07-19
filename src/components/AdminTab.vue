@@ -4,7 +4,7 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
-const { appData, activePub, activeBeers, addPub, addBeer, resetCounts, clearAll, setActivePub, updateBeerPrice } = useAppData()
+const { appData, activePub, activeBeers, addPub, addBeer, resetCounts, clearAll, setActivePub, updateBeerPrice, moveBeerInPub } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
 function makeCurrentTime() {
@@ -269,7 +269,11 @@ function doClear() {
       <h2>{{ t('admin.pubPriceList', { pub: activePub?.name || t('defaults.defaultPub') }) }}</h2>
       <div v-if="activeBeers.length === 0" class="price-list-empty">{{ t('admin.noPubBeers') }}</div>
       <div v-else class="price-list">
-        <div v-for="beer in activeBeers" :key="beer.id" class="price-list-row">
+        <div v-for="(beer, i) in activeBeers" :key="beer.id" class="price-list-row">
+          <div class="price-list-order">
+            <button type="button" class="btn-order" :disabled="i === 0" :title="t('admin.moveUp')" @click="moveBeerInPub(beer.id, 'up')">▲</button>
+            <button type="button" class="btn-order" :disabled="i === activeBeers.length - 1" :title="t('admin.moveDown')" @click="moveBeerInPub(beer.id, 'down')">▼</button>
+          </div>
           <span class="price-list-name">{{ beer.name }}</span>
           <span class="price-list-meta">{{ beer.vol }}l · {{ beer.abv }}%</span>
           <input

@@ -324,6 +324,37 @@ function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId, dr
   saveData()
 }
 
+function addOtherForFriend({ friendIndex, kind, price, pubId = appData.activePubId, drinkTime = makeCurrentTime() }) {
+  if (!Number.isInteger(friendIndex) || friendIndex < 0 || friendIndex >= appData.friends.length) return
+
+  const itemTemplates = {
+    food: { name: t('otherModal.foodOption'), style: t('otherModal.foodOption'), vol: 0, abv: 0 },
+    shot: { name: t('otherModal.shotOption'), style: t('otherModal.shotOption'), vol: 0.04, abv: 40 },
+    bigShot: { name: t('otherModal.bigShotOption'), style: t('otherModal.bigShotOption'), vol: 0.08, abv: 40 }
+  }
+
+  const item = itemTemplates[kind]
+  if (!item) return
+
+  const counts = new Array(appData.friends.length).fill(0)
+  counts[friendIndex] = 1
+
+  appData.beers.unshift({
+    id: Date.now(),
+    pubId,
+    name: item.name,
+    style: item.style,
+    price: parseFloat(price) || 0,
+    vol: item.vol,
+    abv: item.abv,
+    drinkTime: String(drinkTime || makeCurrentTime()),
+    counts,
+    likes: 0,
+    dislikes: 0
+  })
+  saveData()
+}
+
 function importBeers(text, pubId = appData.activePubId, drinkTime = makeCurrentTime()) {
   let count = 0
   text.split('\n').forEach((line, index) => {
@@ -356,6 +387,27 @@ function updateBeerPrice(beerId, price) {
     beer.price = parseFloat(price) || 0
     saveData()
   }
+}
+
+function moveBeerInPub(beerId, direction) {
+  const pubEntries = appData.beers
+    .map((beer, index) => ({ beer, index }))
+    .filter(({ beer }) => beer.pubId === appData.activePubId)
+
+  const pos = pubEntries.findIndex(({ beer }) => beer.id === beerId)
+  if (pos === -1) return
+
+  const swapPos = direction === 'up' ? pos - 1 : pos + 1
+  if (swapPos < 0 || swapPos >= pubEntries.length) return
+
+  const indexA = pubEntries[pos].index
+  const indexB = pubEntries[swapPos].index
+
+  const temp = appData.beers[indexA]
+  appData.beers[indexA] = appData.beers[indexB]
+  appData.beers[indexB] = temp
+
+  saveData()
 }
 
 function addFriend() {
@@ -485,7 +537,7 @@ export function useAppData() {
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
-    addBeer, importBeers, updateBeerPrice,
+    addBeer, addOtherForFriend, importBeers, updateBeerPrice, moveBeerInPub,
     setActivePub, addPub,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearActivePubDrinking, clearAll,
