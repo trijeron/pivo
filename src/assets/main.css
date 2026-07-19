@@ -122,6 +122,9 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .pub-select-group select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
 .pub-add-form { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
 .pub-add-form input { flex: 1; min-width: 180px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
+.pub-edit-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.pub-edit-form h3 { width: 100%; margin-bottom: 0; text-align: left; }
+.pub-edit-form input { flex: 1 1 220px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
 .simple-import-toggle { display: flex; align-items: center; gap: 8px; width: 100%; font-weight: bold; color: var(--text); }
 .simple-import-toggle input { margin: 0; }
 .autocomplete-wrapper { position: relative; flex-grow: 2; min-width: 200px; }
@@ -162,6 +165,10 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .price-list-meta { font-size: 0.82em; color: var(--muted); white-space: nowrap; }
 .price-list-input { width: 75px; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); text-align: right; font-size: 1em; }
 .price-list-currency { font-size: 0.9em; color: var(--muted); white-space: nowrap; }
+.price-list-editor { flex: 1; display: grid; grid-template-columns: minmax(140px, 2fr) minmax(120px, 1.4fr) repeat(3, minmax(70px, 0.8fr)); gap: 8px; }
+.price-list-editor input, .price-list-editor select { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text); }
+.price-list-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.price-list-delete { flex-grow: 0; }
 .price-list-empty { color: var(--muted); text-align: center; padding: 12px 0; font-style: italic; }
 
 /* Import preview dialog */
@@ -192,6 +199,7 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 
 .selected-user-items { display: grid; grid-template-columns: 2fr 0.6fr 1fr 1fr; gap: 8px 12px; align-items: center; }
 .selected-user-items-head { font-size: 0.85em; color: var(--muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.03em; }
+.selected-user-note { margin: 0 0 12px; color: var(--muted); font-size: 0.9em; }
 
 .btn-add-friend { background: #3498db; color: white; border: none; padding: 12px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
 
@@ -234,4 +242,8 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
   .people-pub-select { justify-content: space-between; }
   .people-pub-select select, .people-toolbar .btn-warning { width: 100%; }
   .toolbar-pub-select select, .tab-toolbar .btn-secondary, .pub-add-form input, .pub-add-form .btn-secondary { width: 100%; }
+  .pub-edit-form input, .pub-edit-form .btn-secondary { width: 100%; }
+  .price-list-row { flex-wrap: wrap; }
+  .price-list-editor { grid-template-columns: 1fr; width: 100%; }
+  .price-list-actions { width: 100%; }
 }

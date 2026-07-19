@@ -4,7 +4,7 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import UserModal from './UserModal.vue'
 
-const { appData, activeBeers, activePub, activePubStats, addFriend, setActivePub, clearActivePubDrinking } = useAppData()
+const { appData, activeBeers, activePub, activePubStats, addFriend, setActivePub, clearActivePubDrinking, isBeerCountedAsAlcohol } = useAppData()
 const { t, translateBeerStyle } = useI18n()
 
 const activeUserIndex = ref(null)
@@ -32,6 +32,26 @@ const selectedUserItems = computed(() => {
       }
     })
     .filter(item => item.count > 0)
+})
+
+const selectedUserAlcoholItems = computed(() => {
+  if (selectedUserIndex.value === null) return []
+
+  return activeBeers.value
+    .map(beer => {
+      const count = beer.counts?.[selectedUserIndex.value] || 0
+      const price = parseFloat(beer.price) || 0
+      return {
+        id: beer.id,
+        name: beer.name,
+        style: beer.style,
+        count,
+        price,
+        total: count * price,
+        countsAsAlcohol: isBeerCountedAsAlcohol(beer)
+      }
+    })
+    .filter(item => item.count > 0 && item.countsAsAlcohol)
 })
 
 function onClearActivePubDrinking() {
@@ -94,6 +114,30 @@ function onClearActivePubDrinking() {
         <div class="selected-user-items-head">{{ t('people.total') }}</div>
 
         <template v-for="item in selectedUserItems" :key="item.id">
+          <div>
+            <strong>{{ item.name }}</strong>
+            <div v-if="item.style" style="font-size: 0.85em; color:#7f8c8d;">{{ translateBeerStyle(item.style) }}</div>
+          </div>
+          <div>{{ item.count }}x</div>
+          <div>{{ item.price }} {{ t('currency') }}</div>
+          <div><strong>{{ item.total }} {{ t('currency') }}</strong></div>
+        </template>
+      </div>
+
+      <h3 style="text-align: left; margin: 18px 0 8px;">{{ t('people.alcoholCountList', { name: selectedUser.name }) }}</h3>
+      <p class="selected-user-note">{{ t('people.alcoholCountNote') }}</p>
+
+      <div v-if="selectedUserAlcoholItems.length === 0" style="color:#7f8c8d;">
+        {{ t('people.alcoholCountEmpty') }}
+      </div>
+
+      <div v-else class="selected-user-items">
+        <div class="selected-user-items-head">{{ t('people.beer') }}</div>
+        <div class="selected-user-items-head">{{ t('people.count') }}</div>
+        <div class="selected-user-items-head">{{ t('people.pricePerUnit') }}</div>
+        <div class="selected-user-items-head">{{ t('people.total') }}</div>
+
+        <template v-for="item in selectedUserAlcoholItems" :key="`alcohol-${item.id}`">
           <div>
             <strong>{{ item.name }}</strong>
             <div v-if="item.style" style="font-size: 0.85em; color:#7f8c8d;">{{ translateBeerStyle(item.style) }}</div>

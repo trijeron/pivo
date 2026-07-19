@@ -1,10 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
 
-const { appData, activePub, activeBeers, addPub, addBeer, resetCounts, clearAll, setActivePub, updateBeerPrice, moveBeerInPub } = useAppData()
+const {
+  appData,
+  activePub,
+  activeBeers,
+  addPub,
+  updatePub,
+  addBeer,
+  resetCounts,
+  clearAll,
+  setActivePub,
+  saveBeerEdit,
+  deleteBeer,
+  updateBeerPrice,
+  moveBeerInPub
+} = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
 function makeCurrentTime() {
@@ -13,12 +27,21 @@ function makeCurrentTime() {
 }
 
 const newPubName = ref('')
+const newPubAddress = ref('')
 const newName  = ref('')
 const newStyle = ref('')
 const newPrice = ref('')
 const newVol   = ref('0.5')
 const newAbv   = ref('5.0')
 const newDrinkTime = ref(makeCurrentTime())
+const editPubName = ref('')
+const editPubAddress = ref('')
+const editingBeerId = ref(null)
+const editBeerName = ref('')
+const editBeerStyle = ref('')
+const editBeerPrice = ref('')
+const editBeerVol = ref('')
+const editBeerAbv = ref('')
 const importText = ref('')
 const simpleImport = ref(true)
 const showAutocomplete = ref(false)
@@ -27,6 +50,11 @@ const selectedCatalogBeer = ref(null)
 // Import confirmation dialog
 const showImportDialog = ref(false)
 const parsedImportBeers = ref([])
+
+watch(activePub, (pub) => {
+  editPubName.value = pub?.name || ''
+  editPubAddress.value = pub?.address || ''
+}, { immediate: true })
 
 const combinedCatalog = computed(() => {
   const dynamicEntries = appData.catalog
@@ -79,8 +107,19 @@ function onSimpleImportChange() {
 }
 
 function submitPub() {
-  const createdPub = addPub(newPubName.value)
-  if (createdPub) newPubName.value = ''
+  const createdPub = addPub(newPubName.value, newPubAddress.value)
+  if (createdPub) {
+    newPubName.value = ''
+    newPubAddress.value = ''
+  }
+}
+
+function submitPubEdit() {
+  if (!activePub.value) return
+  updatePub(activePub.value.id, {
+    name: editPubName.value,
+    address: editPubAddress.value
+  })
 }
 
 function submitBeer() {
@@ -156,6 +195,38 @@ function doReset() {
 function doClear() {
   if (confirm(t('admin.clearConfirm'))) clearAll()
 }
+
+function openBeerEdit(beer) {
+  editingBeerId.value = beer.id
+  editBeerName.value = beer.name
+  editBeerStyle.value = beer.style
+  editBeerPrice.value = String(beer.price)
+  editBeerVol.value = String(beer.vol)
+  editBeerAbv.value = String(beer.abv)
+}
+
+function cancelBeerEdit() {
+  editingBeerId.value = null
+}
+
+function submitBeerEdit() {
+  if (editingBeerId.value === null) return
+  saveBeerEdit(editingBeerId.value, {
+    name: editBeerName.value,
+    style: editBeerStyle.value,
+    price: editBeerPrice.value,
+    vol: editBeerVol.value,
+    abv: editBeerAbv.value
+  })
+  editingBeerId.value = null
+}
+
+function removeBeer(beerId) {
+  if (confirm(t('beer.deleteConfirm'))) {
+    deleteBeer(beerId)
+    if (editingBeerId.value === beerId) editingBeerId.value = null
+  }
+}
 </script>
 
 <template>
@@ -209,9 +280,16 @@ function doClear() {
         </label>
         <form class="pub-add-form" @submit.prevent="submitPub">
           <input v-model="newPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
+          <input v-model="newPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
           <button type="submit" class="btn-secondary">{{ t('admin.addPubButton') }}</button>
         </form>
       </div>
+      <form v-if="activePub" class="pub-edit-form" @submit.prevent="submitPubEdit">
+        <h3>{{ t('admin.editActivePub') }}</h3>
+        <input v-model="editPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
+        <input v-model="editPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
+        <button type="submit" class="btn-secondary">{{ t('admin.savePubButton') }}</button>
+      </form>
     </div>
 
     <div class="section">
@@ -274,17 +352,39 @@ function doClear() {
             <button type="button" class="btn-order" :disabled="i === 0" :title="t('admin.moveUp')" @click="moveBeerInPub(beer.id, 'up')">▲</button>
             <button type="button" class="btn-order" :disabled="i === activeBeers.length - 1" :title="t('admin.moveDown')" @click="moveBeerInPub(beer.id, 'down')">▼</button>
           </div>
-          <span class="price-list-name">{{ beer.name }}</span>
-          <span class="price-list-meta">{{ beer.vol }}l · {{ beer.abv }}%</span>
-          <input
-            class="price-list-input"
-            type="number"
-            :value="beer.price"
-            min="0"
-            step="0.5"
-            @change="updateBeerPrice(beer.id, $event.target.value)"
-          >
-          <span class="price-list-currency">{{ t('currency') }}</span>
+          <template v-if="editingBeerId === beer.id">
+            <div class="price-list-editor">
+              <input v-model="editBeerName" type="text" :placeholder="t('admin.beerNamePlaceholder')">
+              <select v-model="editBeerStyle">
+                <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
+                <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
+                  <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
+                </optgroup>
+              </select>
+              <input v-model="editBeerPrice" type="number" min="0" step="0.5" :placeholder="t('admin.pricePlaceholder')">
+              <input v-model="editBeerVol" type="number" min="0.1" step="0.1" :placeholder="t('admin.volumePlaceholder')">
+              <input v-model="editBeerAbv" type="number" min="0" step="0.1" :placeholder="t('admin.abvPlaceholder')">
+            </div>
+            <div class="price-list-actions">
+              <button type="button" class="btn-save-edit" @click="submitBeerEdit">{{ t('beer.save') }}</button>
+              <button type="button" class="btn-cancel-edit" @click="cancelBeerEdit">{{ t('beer.cancel') }}</button>
+              <button type="button" class="btn-danger price-list-delete" @click="removeBeer(beer.id)">{{ t('beer.delete') }}</button>
+            </div>
+          </template>
+          <template v-else>
+            <span class="price-list-name">{{ beer.name }}</span>
+            <span class="price-list-meta">{{ beer.vol }}l · {{ beer.abv }}%</span>
+            <input
+              class="price-list-input"
+              type="number"
+              :value="beer.price"
+              min="0"
+              step="0.5"
+              @change="updateBeerPrice(beer.id, $event.target.value)"
+            >
+            <span class="price-list-currency">{{ t('currency') }}</span>
+            <button type="button" class="btn-edit" @click="openBeerEdit(beer)">✏️</button>
+          </template>
         </div>
       </div>
     </div>

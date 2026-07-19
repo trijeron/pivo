@@ -3,6 +3,8 @@ import { useI18n } from './useI18n.js'
 
 const STORAGE_KEY = 'beerAppDataV8'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
+const ALCOHOL_ABV_THRESHOLD = 0.5
+const ALCOHOL_LOOKBACK_MS = 24 * 60 * 60 * 1000
 
 const { t } = useI18n()
 
@@ -28,7 +30,7 @@ function makePubId() {
 
 function makeDefaultPubs() {
   return [
-    { id: 'pub-default', name: t('defaults.defaultPub') }
+    { id: 'pub-default', name: t('defaults.defaultPub'), address: '' }
   ]
 }
 
@@ -87,7 +89,8 @@ function ensurePubState() {
     .filter(pub => pub && pub.id)
     .map(pub => ({
       id: String(pub.id),
-      name: String(pub.name || t('defaults.defaultPub')).trim() || t('defaults.defaultPub')
+      name: String(pub.name || t('defaults.defaultPub')).trim() || t('defaults.defaultPub'),
+      address: String(pub.address || '').trim()
     }))
 
   if (appData.pubs.length === 0) {
@@ -115,6 +118,15 @@ function parseTimeToDate(timeValue, fallbackTime) {
   return parsed
 }
 
+function isBeerCountedAsAlcohol(beer, now = new Date()) {
+  const abv = parseFloat(beer?.abv) || 0
+  if (abv <= ALCOHOL_ABV_THRESHOLD) return false
+
+  const beerTime = parseTimeToDate(beer?.drinkTime, appData.startTime)
+  const elapsed = now - beerTime
+  return elapsed >= 0 && elapsed <= ALCOHOL_LOOKBACK_MS
+}
+
 function computeStatsForBeers(beers) {
   let tableTotal = 0;
   const friendTotals = new Array(appData.friends.length).fill(0);
@@ -129,11 +141,9 @@ function computeStatsForBeers(beers) {
     const price = parseFloat(beer.price) || 0;
     const abv = parseFloat(beer.abv) || 0;
     const vol = parseFloat(beer.vol) || 0;
-    
-    // Zjistíme, zda jde o alkoholický nápoj (nealko piva mohou mít např. 0.5, Birell má 0)
-    const isAlcoholic = abv > 0; 
     const gramsPerBeer = vol * 1000 * (abv / 100) * 0.8;
     const beerTime = parseTimeToDate(beer.drinkTime, appData.startTime);
+    const countsAsAlcohol = isBeerCountedAsAlcohol(beer, now)
 
     beer.counts.forEach((count, fi) => {
       if (!count) return;
@@ -143,7 +153,7 @@ function computeStatsForBeers(beers) {
       tableTotal += count * price;
 
       // 2. Alkohol (počítáme jen pokud to má nějaké volty)
-      if (isAlcoholic) {
+      if (countsAsAlcohol) {
         friendGramsAlcohol[fi] += count * gramsPerBeer;
 
         // Uložíme si čas úplně prvního ALKOHOLICKÉHO drinku pro start metabolismu
@@ -423,14 +433,24 @@ function setActivePub(pubId) {
   saveData()
 }
 
-function addPub(name) {
+function addPub(name, address = '') {
   const trimmedName = String(name || '').trim()
   if (!trimmedName) return null
-  const newPub = { id: makePubId(), name: trimmedName }
+  const newPub = { id: makePubId(), name: trimmedName, address: String(address || '').trim() }
   appData.pubs.push(newPub)
   appData.activePubId = newPub.id
   saveData()
   return newPub
+}
+
+function updatePub(pubId, { name, address }) {
+  const pub = appData.pubs.find(item => item.id === pubId)
+  if (!pub) return null
+
+  pub.name = String(name || '').trim() || t('defaults.defaultPub')
+  pub.address = String(address || '').trim()
+  saveData()
+  return pub
 }
 
 function updateFriend(index, field, value) {
@@ -538,11 +558,12 @@ export function useAppData() {
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, addOtherForFriend, importBeers, updateBeerPrice, moveBeerInPub,
-    setActivePub, addPub,
+    setActivePub, addPub, updatePub,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearActivePubDrinking, clearAll,
     setTheme, toggleTheme,
     setQuickMode, toggleQuickFriend, quickSelectAll, quickClearSelection,
-    applyQuickIncrement, applyQuickDecrement
+    applyQuickIncrement, applyQuickDecrement,
+    isBeerCountedAsAlcohol
   }
 }
