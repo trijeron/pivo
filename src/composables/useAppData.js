@@ -346,22 +346,32 @@ function addOtherForFriend({ friendIndex, kind, price, pubId = appData.activePub
   const item = itemTemplates[kind]
   if (!item) return
 
-  const counts = new Array(appData.friends.length).fill(0)
-  counts[friendIndex] = 1
+  const parsedPrice = parseFloat(price) || 0
+  const existing = appData.beers.find(b =>
+    b.pubId === pubId &&
+    b.name === item.name &&
+    b.price === parsedPrice
+  )
 
-  appData.beers.unshift({
-    id: Date.now(),
-    pubId,
-    name: item.name,
-    style: item.style,
-    price: parseFloat(price) || 0,
-    vol: item.vol,
-    abv: item.abv,
-    drinkTime: String(drinkTime || makeCurrentTime()),
-    counts,
-    likes: 0,
-    dislikes: 0
-  })
+  if (existing) {
+    existing.counts[friendIndex] = (existing.counts[friendIndex] || 0) + 1
+  } else {
+    const counts = new Array(appData.friends.length).fill(0)
+    counts[friendIndex] = 1
+    appData.beers.unshift({
+      id: Date.now(),
+      pubId,
+      name: item.name,
+      style: item.style,
+      price: parsedPrice,
+      vol: item.vol,
+      abv: item.abv,
+      drinkTime: String(drinkTime || makeCurrentTime()),
+      counts,
+      likes: 0,
+      dislikes: 0
+    })
+  }
   saveData()
 }
 
