@@ -114,6 +114,8 @@ h1, h2, h3 { text-align: center; margin-top: 0; color: var(--heading); }
 .btn-cancel-edit { background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
 /* TAB 2: ADMINISTRACE STOLU */
+.active-pub-badge { display: inline-block; background: var(--primary, #e67e22); color: #fff; font-weight: bold; padding: 6px 14px; border-radius: 20px; margin-bottom: 12px; cursor: pointer; font-size: 0.95em; }
+.active-pub-badge:hover { opacity: 0.85; }
 .section { background: var(--surface); padding: 15px; border-radius: 8px; box-shadow: var(--shadow); margin-bottom: 15px; }
 .add-beer-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
 .add-beer-form input, .add-beer-form select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 4px; box-sizing: border-box; background: var(--surface); color: var(--text); }

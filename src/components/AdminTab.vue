@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, useTemplateRef } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
@@ -46,6 +46,7 @@ const importText = ref('')
 const simpleImport = ref(true)
 const showAutocomplete = ref(false)
 const selectedCatalogBeer = ref(null)
+const pubManagementSection = useTemplateRef('pubManagementSection')
 
 // Import confirmation dialog
 const showImportDialog = ref(false)
@@ -227,6 +228,10 @@ function removeBeer(beerId) {
     if (editingBeerId.value === beerId) editingBeerId.value = null
   }
 }
+
+function scrollToPubManagement() {
+  pubManagementSection.value?.scrollIntoView({ behavior: 'smooth' })
+}
 </script>
 
 <template>
@@ -269,27 +274,8 @@ function removeBeer(beerId) {
       </div>
     </div>
 
-    <div class="section">
-      <h2>{{ t('admin.pubCatalog') }}</h2>
-      <div class="pub-form-row">
-        <label class="pub-select-group">
-          <span>{{ t('admin.activePub') }}</span>
-          <select :value="appData.activePubId" @change="setActivePub($event.target.value)">
-            <option v-for="pub in appData.pubs" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
-          </select>
-        </label>
-        <form class="pub-add-form" @submit.prevent="submitPub">
-          <input v-model="newPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
-          <input v-model="newPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
-          <button type="submit" class="btn-secondary">{{ t('admin.addPubButton') }}</button>
-        </form>
-      </div>
-      <form v-if="activePub" class="pub-edit-form" @submit.prevent="submitPubEdit">
-        <h3>{{ t('admin.editActivePub') }}</h3>
-        <input v-model="editPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
-        <input v-model="editPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
-        <button type="submit" class="btn-secondary">{{ t('admin.savePubButton') }}</button>
-      </form>
+    <div v-if="activePub" class="active-pub-badge" @click="scrollToPubManagement">
+      {{ activePub.name }}
     </div>
 
     <div class="section">
@@ -399,6 +385,29 @@ function removeBeer(beerId) {
         <button type="button" class="btn-warning" @click="doReset">{{ t('admin.resetPaid') }}</button>
         <button type="button" class="btn-danger"  @click="doClear">{{ t('admin.clearAll') }}</button>
       </div>
+    </div>
+
+    <div ref="pubManagementSection" class="section">
+      <h2>{{ t('admin.pubCatalog') }}</h2>
+      <div class="pub-form-row">
+        <label class="pub-select-group">
+          <span>{{ t('admin.activePub') }}</span>
+          <select :value="appData.activePubId" @change="setActivePub($event.target.value)">
+            <option v-for="pub in appData.pubs" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
+          </select>
+        </label>
+        <form class="pub-add-form" @submit.prevent="submitPub">
+          <input v-model="newPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
+          <input v-model="newPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
+          <button type="submit" class="btn-secondary">{{ t('admin.addPubButton') }}</button>
+        </form>
+      </div>
+      <form v-if="activePub" class="pub-edit-form" @submit.prevent="submitPubEdit">
+        <h3>{{ t('admin.editActivePub') }}</h3>
+        <input v-model="editPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
+        <input v-model="editPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
+        <button type="submit" class="btn-secondary">{{ t('admin.savePubButton') }}</button>
+      </form>
     </div>
   </div>
 </template>
