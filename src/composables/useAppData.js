@@ -425,9 +425,10 @@ function moveBeerInPub(beerId, direction) {
   const indexA = pubEntries[pos].index
   const indexB = pubEntries[swapPos].index
 
-  const temp = appData.beers[indexA]
-  appData.beers[indexA] = appData.beers[indexB]
-  appData.beers[indexB] = temp
+  const beerA = appData.beers[indexA]
+  const beerB = appData.beers[indexB]
+  appData.beers.splice(indexA, 1, beerB)
+  appData.beers.splice(indexB, 1, beerA)
 
   saveData()
 }
