@@ -92,9 +92,9 @@ function ratingIcon(beer) {
             <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
           </optgroup>
         </select>
-        <input v-model="editPrice" type="number" :placeholder="t('beer.pricePlaceholder')" style="width: 55px;">
-        <input v-model="editVol"   type="number" step="0.1"           style="width: 55px;">
-        <input v-model="editAbv"   type="number" step="0.1"           style="width: 55px;">
+        <input v-model="editPrice" type="number" :placeholder="t('beer.pricePlaceholder')" style="width: 55px;" @focus="editPrice = ''">
+        <input v-model="editVol"   type="number" step="0.1"           style="width: 55px;" @focus="editVol = ''">
+        <input v-model="editAbv"   type="number" step="0.1"           style="width: 55px;" @focus="editAbv = ''">
       </div>
       <div style="display: flex; gap: 10px; justify-content: space-between;">
         <div>

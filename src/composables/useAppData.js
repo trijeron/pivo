@@ -354,6 +354,7 @@ function addOtherForFriend({ friendIndex, kind, price, pubId = appData.activePub
   )
 
   if (existing) {
+    existing.isOther = true
     existing.counts[friendIndex] = (existing.counts[friendIndex] || 0) + 1
   } else {
     const counts = new Array(appData.friends.length).fill(0)
@@ -369,7 +370,8 @@ function addOtherForFriend({ friendIndex, kind, price, pubId = appData.activePub
       drinkTime: String(drinkTime || makeCurrentTime()),
       counts,
       likes: 0,
-      dislikes: 0
+      dislikes: 0,
+      isOther: true
     })
   }
   saveData()

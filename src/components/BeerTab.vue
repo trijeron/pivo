@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import BeerCard from './BeerCard.vue'
@@ -8,6 +8,8 @@ const emit = defineEmits(['go-admin'])
 
 const { appData, activeBeers, setActivePub, addOtherForFriend } = useAppData()
 const { t } = useI18n()
+
+const displayBeers = computed(() => activeBeers.value.filter(b => !b.isOther))
 
 const otherModalOpen = ref(false)
 const otherFriendIndex = ref(0)
@@ -53,11 +55,11 @@ function submitOtherModal() {
     <button type="button" class="btn-secondary" @click="openOtherModal">{{ t('beerTab.addOther') }}</button>
    </div>
 
-   <div v-if="activeBeers.length === 0" style="text-align:center; color:#7f8c8d; padding: 30px;">
+   <div v-if="displayBeers.length === 0" style="text-align:center; color:#7f8c8d; padding: 30px;">
      {{ t('beerTab.empty') }}<br><br>
      <strong>{{ t('beerTab.emptyHint') }}</strong>
    </div>
-   <BeerCard v-else v-for="beer in activeBeers" :key="beer.id" :beer="beer" />
+   <BeerCard v-else v-for="beer in displayBeers" :key="beer.id" :beer="beer" />
 
    <div v-if="otherModalOpen" class="modal" @click.self="otherModalOpen = false">
      <div class="modal-content">

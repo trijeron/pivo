@@ -46,12 +46,12 @@ function onDelete() {
 
       <div class="modal-field">
         <label>{{ t('userModal.name') }}</label>
-        <input v-model="localName" class="modal-input" type="text" @input="onInput">
+        <input v-model="localName" class="modal-input" type="text" @input="onInput" @focus="$event.target.select()">
       </div>
       <div style="display: flex; gap: 10px;">
         <div class="modal-field" style="flex: 1;">
           <label>{{ t('userModal.weight') }}</label>
-          <input v-model.number="localWeight" class="modal-input" type="number" min="30" max="200" @input="onInput">
+          <input v-model.number="localWeight" class="modal-input" type="number" min="30" max="200" @input="onInput" @focus="$event.target.select()">
         </div>
         <div class="modal-field" style="flex: 1;">
           <label>{{ t('userModal.gender') }}</label>

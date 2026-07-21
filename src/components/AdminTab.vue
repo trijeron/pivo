@@ -347,9 +347,9 @@ function scrollToPubManagement() {
                   <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
                 </optgroup>
               </select>
-              <input v-model="editBeerPrice" type="number" min="0" step="0.5" :placeholder="t('admin.pricePlaceholder')">
-              <input v-model="editBeerVol" type="number" min="0.1" step="0.1" :placeholder="t('admin.volumePlaceholder')">
-              <input v-model="editBeerAbv" type="number" min="0" step="0.1" :placeholder="t('admin.abvPlaceholder')">
+              <input v-model="editBeerPrice" type="number" min="0" step="0.5" :placeholder="t('admin.pricePlaceholder')" @focus="editBeerPrice = ''">
+              <input v-model="editBeerVol" type="number" min="0.1" step="0.1" :placeholder="t('admin.volumePlaceholder')" @focus="editBeerVol = ''">
+              <input v-model="editBeerAbv" type="number" min="0" step="0.1" :placeholder="t('admin.abvPlaceholder')" @focus="editBeerAbv = ''">
             </div>
             <div class="price-list-actions">
               <button type="button" class="btn-save-edit" @click="submitBeerEdit">{{ t('beer.save') }}</button>
@@ -366,6 +366,7 @@ function scrollToPubManagement() {
               :value="beer.price"
               min="0"
               step="0.5"
+              @focus="$event.target.select()"
               @change="updateBeerPrice(beer.id, $event.target.value)"
             >
             <span class="price-list-currency">{{ t('currency') }}</span>
