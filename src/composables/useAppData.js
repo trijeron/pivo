@@ -24,8 +24,8 @@ function makeCurrentTime() {
   return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
 }
 
-function makePubId() {
-  return `pub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+function makeId() {
+  return crypto.randomUUID()
 }
 
 function makeDefaultPubs() {
@@ -321,7 +321,7 @@ function addToCatalog({ name, style, vol, abv }) {
 function addBeer({ name, style, price, vol, abv, pubId = appData.activePubId, drinkTime = makeCurrentTime() }) {
   addToCatalog({ name, style, vol, abv })
   appData.beers.unshift({
-    id: Date.now(),
+    id: makeId(),
     pubId,
     name, style,
     price: parseFloat(price) || 0,
@@ -360,7 +360,7 @@ function addOtherForFriend({ friendIndex, kind, price, pubId = appData.activePub
     const counts = new Array(appData.friends.length).fill(0)
     counts[friendIndex] = 1
     appData.beers.unshift({
-      id: Date.now(),
+      id: makeId(),
       pubId,
       name: item.name,
       style: item.style,
@@ -389,7 +389,7 @@ function importBeers(text, pubId = appData.activePubId, drinkTime = makeCurrentT
         const abv = !isNaN(parseFloat(parts[4])) ? parseFloat(parts[4]) : 5.0
         addToCatalog({ name, style, vol, abv })
         appData.beers.push({
-          id: Date.now() + index, pubId, name, style,
+          id: makeId(), pubId, name, style,
           price: parseFloat(parts[2]) || 0, vol, abv,
           drinkTime: String(drinkTime || makeCurrentTime()),
           counts: new Array(appData.friends.length).fill(0),
@@ -449,7 +449,7 @@ function setActivePub(pubId) {
 function addPub(name, address = '') {
   const trimmedName = String(name || '').trim()
   if (!trimmedName) return null
-  const newPub = { id: makePubId(), name: trimmedName, address: String(address || '').trim() }
+  const newPub = { id: makeId(), name: trimmedName, address: String(address || '').trim() }
   appData.pubs.push(newPub)
   appData.activePubId = newPub.id
   saveData()
