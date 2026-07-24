@@ -2,7 +2,7 @@
 import { ref, computed, watch, useTemplateRef } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
-import { beerCatalog, beerStyleGroups } from '../data/beerCatalog.js'
+import { beerCatalog, beerStyleGroups, styleDefaultAbv } from '../data/beerCatalog.js'
 
 const {
   appData,
@@ -10,6 +10,7 @@ const {
   activeBeers,
   addPub,
   updatePub,
+  deletePub,
   addBeer,
   resetCounts,
   clearAll,
@@ -51,6 +52,10 @@ const pubManagementSection = useTemplateRef('pubManagementSection')
 // Import confirmation dialog
 const showImportDialog = ref(false)
 const parsedImportBeers = ref([])
+
+// Delete pub confirmation dialog
+const showDeletePubModal = ref(false)
+const pubToDelete = ref(null)
 
 watch(activePub, (pub) => {
   editPubName.value = pub?.name || ''
@@ -232,6 +237,37 @@ function removeBeer(beerId) {
 function scrollToPubManagement() {
   pubManagementSection.value?.scrollIntoView({ behavior: 'smooth' })
 }
+
+function onStyleChange() {
+  if (!simpleImport.value && newStyle.value) {
+    const defaultAbv = styleDefaultAbv[newStyle.value]
+    if (defaultAbv !== undefined) newAbv.value = String(defaultAbv)
+  }
+}
+
+function onEditStyleChange() {
+  if (editBeerStyle.value) {
+    const defaultAbv = styleDefaultAbv[editBeerStyle.value]
+    if (defaultAbv !== undefined) editBeerAbv.value = String(defaultAbv)
+  }
+}
+
+function openDeletePubModal() {
+  if (!activePub.value) return
+  pubToDelete.value = activePub.value
+  showDeletePubModal.value = true
+}
+
+function confirmDeletePub() {
+  if (pubToDelete.value) deletePub(pubToDelete.value.id)
+  showDeletePubModal.value = false
+  pubToDelete.value = null
+}
+
+function cancelDeletePub() {
+  showDeletePubModal.value = false
+  pubToDelete.value = null
+}
 </script>
 
 <template>
@@ -306,7 +342,7 @@ function scrollToPubManagement() {
         <p v-if="simpleImport && selectedCatalogBeerDetails" class="catalog-hint">
           {{ selectedCatalogBeerDetails }}
         </p>
-        <select v-model="newStyle" class="new-beer-style">
+        <select v-model="newStyle" class="new-beer-style" @change="onStyleChange">
           <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
           <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
             <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
@@ -341,7 +377,7 @@ function scrollToPubManagement() {
           <template v-if="editingBeerId === beer.id">
             <div class="price-list-editor">
               <input v-model="editBeerName" type="text" :placeholder="t('admin.beerNamePlaceholder')">
-              <select v-model="editBeerStyle">
+              <select v-model="editBeerStyle" @change="onEditStyleChange">
                 <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
                 <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">
                   <option v-for="style in group.styles" :key="style" :value="style">{{ translateBeerStyle(style) }}</option>
@@ -407,8 +443,29 @@ function scrollToPubManagement() {
         <h3>{{ t('admin.editActivePub') }}</h3>
         <input v-model="editPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
         <input v-model="editPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
-        <button type="submit" class="btn-secondary">{{ t('admin.savePubButton') }}</button>
+        <div class="pub-edit-actions">
+          <button type="submit" class="btn-secondary">{{ t('admin.savePubButton') }}</button>
+          <button
+            v-if="appData.pubs.length > 1"
+            type="button"
+            class="btn-danger"
+            @click="openDeletePubModal"
+          >{{ t('admin.deletePubButton') }}</button>
+        </div>
       </form>
+    </div>
+
+    <!-- Delete pub confirmation modal -->
+    <div v-if="showDeletePubModal" class="modal" @click.self="cancelDeletePub">
+      <div class="modal-content">
+        <span class="close-modal" @click="cancelDeletePub">&times;</span>
+        <h3>{{ t('admin.deletePubConfirmTitle') }}</h3>
+        <p>{{ t('admin.deletePubConfirmBody', { name: pubToDelete?.name || '' }) }}</p>
+        <div class="import-dialog-actions">
+          <button type="button" class="btn-danger" @click="confirmDeletePub">{{ t('admin.deletePubConfirm') }}</button>
+          <button type="button" class="btn-secondary" @click="cancelDeletePub">{{ t('admin.deletePubCancel') }}</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

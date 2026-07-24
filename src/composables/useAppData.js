@@ -1,10 +1,12 @@
 import { reactive, computed } from 'vue'
 import { useI18n } from './useI18n.js'
+import {
+  isBeerCountedAsAlcohol as _isBeerCountedAsAlcohol,
+  computeStatsForBeers as _computeStatsForBeers
+} from '../utils/beerStats.js'
 
 const STORAGE_KEY = 'beerAppDataV8'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
-const ALCOHOL_ABV_THRESHOLD = 0.5
-const ALCOHOL_LOOKBACK_MS = 24 * 60 * 60 * 1000
 
 const { t } = useI18n()
 
@@ -106,92 +108,13 @@ function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)) } catch (e) {}
 }
 
-function parseTimeToDate(timeValue, fallbackTime) {
-  const source = String(timeValue || fallbackTime || makeDefaultStart())
-  const [hRaw, mRaw] = source.split(':')
-  const hours = Number.parseInt(hRaw, 10)
-  const minutes = Number.parseInt(mRaw, 10)
-  const now = new Date()
-  const parsed = new Date()
-  parsed.setHours(Number.isNaN(hours) ? now.getHours() : hours, Number.isNaN(minutes) ? now.getMinutes() : minutes, 0, 0)
-  if (parsed > now) parsed.setDate(parsed.getDate() - 1)
-  return parsed
-}
-
 function isBeerCountedAsAlcohol(beer, now = new Date()) {
-  const abv = parseFloat(beer?.abv) || 0
-  if (abv <= ALCOHOL_ABV_THRESHOLD) return false
-
-  const beerTime = parseTimeToDate(beer?.drinkTime, appData.startTime)
-  const elapsed = now - beerTime
-  return elapsed >= 0 && elapsed <= ALCOHOL_LOOKBACK_MS
+  return _isBeerCountedAsAlcohol(beer, appData.startTime, now)
 }
 
 function computeStatsForBeers(beers) {
-  let tableTotal = 0;
-  const friendTotals = new Array(appData.friends.length).fill(0);
-  
-  // Místo průběžného počítání promile si uložíme celkové gramy alkoholu a čas prvního drinku
-  const friendGramsAlcohol = new Array(appData.friends.length).fill(0);
-  const friendFirstDrinkTimes = new Array(appData.friends.length).fill(null);
-  
-  const now = new Date();
-
-  beers.forEach(beer => {
-    const price = parseFloat(beer.price) || 0;
-    const abv = parseFloat(beer.abv) || 0;
-    const vol = parseFloat(beer.vol) || 0;
-    const gramsPerBeer = vol * 1000 * (abv / 100) * 0.8;
-    const beerTime = parseTimeToDate(beer.drinkTime, appData.startTime);
-    const countsAsAlcohol = isBeerCountedAsAlcohol(beer, now)
-
-    beer.counts.forEach((count, fi) => {
-      if (!count) return;
-
-      // 1. Útrata (počítáme vždy, i pro nealko)
-      friendTotals[fi] += count * price;
-      tableTotal += count * price;
-
-      // 2. Alkohol (počítáme jen pokud to má nějaké volty)
-      if (countsAsAlcohol) {
-        friendGramsAlcohol[fi] += count * gramsPerBeer;
-
-        // Uložíme si čas úplně prvního ALKOHOLICKÉHO drinku pro start metabolismu
-        if (!friendFirstDrinkTimes[fi] || beerTime < friendFirstDrinkTimes[fi]) {
-          friendFirstDrinkTimes[fi] = beerTime;
-        }
-      }
-    });
-  });
-
-  // 3. Finální výpočet BAC (promile) pro každého kamaráda najednou
-  const friendBacs = friendGramsAlcohol.map((totalGrams, fi) => {
-    // Pokud vypil jen nealko (nebo nic), má rovnou 0
-    if (totalGrams === 0) return 0; 
-
-    const friend = appData.friends[fi] || {};
-    const r = friend.gender === 'f' ? 0.55 : 0.68;
-    const bodyWeight = (parseFloat(friend.weight) || 80) * r;
-
-    // Teoretické promile, kdyby se nic neodbourávalo
-    const theoreticalBac = totalGrams / bodyWeight;
-
-    // Kolik hodin uběhlo od PRVNÍHO piva s alkoholem
-    const hoursElapsed = Math.max(0, (now - friendFirstDrinkTimes[fi]) / (1000 * 60 * 60));
-
-    // Játra pálí cca 0.15 promile za hodinu
-    const currentBac = theoreticalBac - (hoursElapsed * 0.15);
-
-    return Math.max(0, currentBac);
-  });
-
-  // 4. Výpočet hodin do vystřízlivění
-  const friendSobers = friendBacs.map(v => (v > 0 ? v / 0.15 : 0));
-
-  return { tableTotal, friendTotals, friendBacs, friendSobers };
+  return _computeStatsForBeers(beers, appData.friends, appData.startTime)
 }
-
- 
 
 function loadData() {
   try {
@@ -466,6 +389,26 @@ function updatePub(pubId, { name, address }) {
   return pub
 }
 
+function deletePub(pubId) {
+  if (appData.pubs.length <= 1) return false
+  const idx = appData.pubs.findIndex(p => p.id === pubId)
+  if (idx === -1) return false
+
+  const replacement = appData.pubs.find(p => p.id !== pubId)
+  appData.beers.forEach(beer => {
+    if (beer.pubId === pubId) beer.pubId = replacement.id
+  })
+
+  appData.pubs.splice(idx, 1)
+
+  if (appData.activePubId === pubId) {
+    appData.activePubId = replacement.id
+  }
+
+  saveData()
+  return true
+}
+
 function updateFriend(index, field, value) {
   if (field === 'name' && !String(value).trim()) value = t('defaults.friend', { number: index + 1 })
   appData.friends[index][field] = value
@@ -571,7 +514,7 @@ export function useAppData() {
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, addOtherForFriend, importBeers, updateBeerPrice, moveBeerInPub,
-    setActivePub, addPub, updatePub,
+    setActivePub, addPub, updatePub, deletePub,
     addFriend, updateFriend, deleteFriend,
     resetCounts, clearActivePubDrinking, clearAll,
     setTheme, toggleTheme,

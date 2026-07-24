@@ -32,6 +32,25 @@ export const beerStyleGroups = [
   },
 ]
 
+export const styleDefaultAbv = {
+  'Světlé výčepní (10°)': 4.0,
+  'Světlý ležák (11°)': 4.5,
+  'Světlý ležák (12°)': 5.0,
+  'Polotmavý ležák (Jantar)': 4.8,
+  'Tmavý ležák / Černé': 4.8,
+  'Světlý speciál (13° a více)': 6.5,
+  'APA (American Pale Ale)': 5.0,
+  'IPA (India Pale Ale)': 6.5,
+  'NEIPA (New England IPA)': 6.5,
+  'Red IPA': 6.5,
+  'Stout / Porter': 5.5,
+  'Pšeničné (Weissbier)': 5.0,
+  'Kyselé (Sour / Gose)': 4.0,
+  'Ovocné pivo / Radler': 2.5,
+  'Nealkoholické pivo': 0.3,
+  'Cider': 4.5
+}
+
 export const beerCatalog = [
   { name: 'Pilsner Urquell', style: 'Světlý ležák (12°)', price: 65, vol: 0.5, abv: 4.4 },
   { name: 'Radegast Rázná 10', style: 'Světlé výčepní (10°)', price: 45, vol: 0.5, abv: 4.1 },

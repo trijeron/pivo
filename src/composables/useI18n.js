@@ -91,7 +91,13 @@ const translations = {
       pubPriceList: 'Rychlá správa cen — {pub}',
       noPubBeers: 'V této hospodě zatím nejsou žádná piva.',
       moveUp: 'Posunout nahoru',
-      moveDown: 'Posunout dolů'
+      moveDown: 'Posunout dolů',
+      deletePubButton: '🗑️ Smazat hospodu',
+      deletePubConfirmTitle: 'Smazat hospodu',
+      deletePubConfirmBody: 'Opravdu smazat hospodu „{name}"? Všechna piva z této hospody budou přesunuta do jiné hospody.',
+      deletePubConfirm: 'Smazat',
+      deletePubCancel: 'Zrušit',
+      cannotDeleteLastPub: 'Nelze smazat poslední hospodu.'
     },
     beer: {
       deleteConfirm: 'Opravdu trvale smazat toto pivo z lístku?',
@@ -217,7 +223,13 @@ const translations = {
       pubPriceList: 'Quick price management — {pub}',
       noPubBeers: 'No beers in this pub yet.',
       moveUp: 'Move up',
-      moveDown: 'Move down'
+      moveDown: 'Move down',
+      deletePubButton: '🗑️ Delete pub',
+      deletePubConfirmTitle: 'Delete pub',
+      deletePubConfirmBody: 'Do you really want to delete pub "{name}"? All beers from this pub will be moved to another pub.',
+      deletePubConfirm: 'Delete',
+      deletePubCancel: 'Cancel',
+      cannotDeleteLastPub: 'Cannot delete the last pub.'
     },
     beer: {
       deleteConfirm: 'Do you really want to permanently delete this beer from the menu?',
@@ -343,7 +355,13 @@ const translations = {
       pubPriceList: 'Schnelle Preisverwaltung — {pub}',
       noPubBeers: 'In dieser Kneipe gibt es noch keine Biere.',
       moveUp: 'Nach oben',
-      moveDown: 'Nach unten'
+      moveDown: 'Nach unten',
+      deletePubButton: '🗑️ Kneipe löschen',
+      deletePubConfirmTitle: 'Kneipe löschen',
+      deletePubConfirmBody: 'Möchtest du die Kneipe „{name}" wirklich löschen? Alle Biere aus dieser Kneipe werden in eine andere Kneipe verschoben.',
+      deletePubConfirm: 'Löschen',
+      deletePubCancel: 'Abbrechen',
+      cannotDeleteLastPub: 'Die letzte Kneipe kann nicht gelöscht werden.'
     },
     beer: {
       deleteConfirm: 'Möchtest du dieses Bier wirklich dauerhaft aus der Karte löschen?',
