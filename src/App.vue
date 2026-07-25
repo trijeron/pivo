@@ -2,12 +2,14 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAppData } from './composables/useAppData.js'
 import { useI18n } from './composables/useI18n.js'
+import { useVersionCheck } from './composables/useVersionCheck.js'
 import BeerTab   from './components/BeerTab.vue'
 import AdminTab  from './components/AdminTab.vue'
 import PeopleTab from './components/PeopleTab.vue'
 
 const { appData, stats, uiState, loadData, toggleTheme } = useAppData()
 const { localeState, availableLocales, t, setLocale } = useI18n()
+const { newVersionAvailable } = useVersionCheck()
 
 const activeTab = ref('beers')
 
@@ -25,6 +27,11 @@ onUnmounted(() => clearInterval(ticker))
 </script>
 
 <template>
+  <div v-if="newVersionAvailable" class="version-banner">
+    <span>{{ t('app.newVersion') }}</span>
+    <button type="button" class="version-banner-btn" @click="() => location.reload()">{{ t('app.newVersionReload') }}</button>
+  </div>
+
   <div class="app-topbar">
     <h1>{{ t('app.title') }}</h1>
     <div class="app-topbar-actions">
