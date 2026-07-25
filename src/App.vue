@@ -6,6 +6,7 @@ import { useVersionCheck } from './composables/useVersionCheck.js'
 import BeerTab   from './components/BeerTab.vue'
 import AdminTab  from './components/AdminTab.vue'
 import PeopleTab from './components/PeopleTab.vue'
+import BottomBar from './components/BottomBar.vue'
 
 const { appData, stats, uiState, loadData, toggleTheme } = useAppData()
 const { localeState, availableLocales, t, setLocale } = useI18n()
@@ -65,4 +66,6 @@ onUnmounted(() => clearInterval(ticker))
   <div class="alert-warning">
     <strong>{{ t('app.warningTitle') }}</strong> {{ t('app.warningBody') }}
   </div>
+
+  <BottomBar />
 </template>
