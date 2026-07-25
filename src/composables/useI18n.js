@@ -176,6 +176,14 @@ const translations = {
       friend: 'Kámoš {number}',
       me: 'Já',
       defaultPub: 'Moje hospoda'
+    },
+    bottomBar: {
+      about: 'O aplikaci',
+      support: 'Podpora e-mailem',
+      aboutTitle: 'O aplikaci 🍻 Pivní lístek',
+      aboutBody: 'Pivní lístek je webová aplikace pro sledování pití v hospodě. Umožňuje evidovat piva na stole, počítat útratu pro každého kamaráda a orientačně sledovat hladinu alkoholu v krvi (promile). Data jsou uložena pouze v prohlížeči — žádné osobní údaje se neodesílají na server. Aplikace slouží pouze pro zábavu a orientaci.',
+      supportTitle: 'Podpora e-mailem',
+      supportBody: 'Máte dotaz, nápad nebo narazili jste na chybu? Napište nám na:'
     }
   },
   en: {
@@ -341,6 +349,14 @@ const translations = {
       friend: 'Friend {number}',
       me: 'Me',
       defaultPub: 'My pub'
+    },
+    bottomBar: {
+      about: 'About',
+      support: 'Email support',
+      aboutTitle: 'About 🍻 Beer menu',
+      aboutBody: 'Beer menu is a web app for tracking drinks at the pub. It lets you log beers on the table, calculate each friend\'s tab, and get an approximate blood alcohol level (BAC). Data is stored only in your browser — no personal information is sent to a server. The app is for entertainment and informational purposes only.',
+      supportTitle: 'Email support',
+      supportBody: 'Have a question, an idea, or found a bug? Write to us at:'
     }
   },
   de: {
@@ -506,6 +522,14 @@ const translations = {
       friend: 'Freund {number}',
       me: 'Ich',
       defaultPub: 'Meine Kneipe'
+    },
+    bottomBar: {
+      about: 'Über die App',
+      support: 'E-Mail-Support',
+      aboutTitle: 'Über 🍻 Bierkarte',
+      aboutBody: 'Bierkarte ist eine Web-App zur Verfolgung von Getränken in der Kneipe. Du kannst Biere auf dem Tisch erfassen, die Kosten für jeden Freund berechnen und einen ungefähren Blutalkoholwert (Promille) ermitteln. Die Daten werden nur im Browser gespeichert — es werden keine persönlichen Daten an einen Server übermittelt. Die App dient ausschließlich zur Unterhaltung und Information.',
+      supportTitle: 'E-Mail-Support',
+      supportBody: 'Haben Sie eine Frage, eine Idee oder einen Fehler gefunden? Schreiben Sie uns an:'
     }
   }
 }

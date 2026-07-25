@@ -54,7 +54,7 @@ body {
   font-family: Arial, sans-serif;
   max-width: 800px;
   margin: 0 auto;
-  padding: 10px;
+  padding: 10px 10px 56px;
   background-color: var(--bg);
   color: var(--text);
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -278,6 +278,15 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .friends-modal-row { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
 .friends-modal-delete { background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; height: 38px; }
 .friends-modal-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+/* BOTTOM BAR */
+.app-bottombar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 900; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--surface); border-top: 1px solid var(--border-strong); padding: 10px 16px; box-shadow: 0 -2px 6px rgba(0,0,0,0.08); font-size: 0.85em; color: var(--muted); }
+.bottombar-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85em; padding: 2px 4px; text-decoration: underline; text-underline-offset: 2px; }
+.bottombar-btn:hover { color: var(--text); }
+.bottombar-sep { color: var(--border-strong); }
+.bottombar-modal-content { max-width: 480px !important; }
+.bottombar-modal-body { line-height: 1.6; color: var(--text); }
+.bottombar-email-link { display: inline-block; margin-top: 8px; font-weight: bold; color: #3498db; word-break: break-all; }
 
 @media (max-width: 640px) {
   .app-topbar { flex-direction: column; align-items: stretch; }
