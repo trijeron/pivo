@@ -20,7 +20,9 @@ const translations = {
       title: '🍻 Pivní lístek',
       tableTotal: 'Útrata stolu',
       warningTitle: '⚠️ Upozornění:',
-      warningBody: 'Promile je čistě orientační. Neslouží pro posouzení schopnosti řídit! (V ČR platí 0.0 ‰).'
+      warningBody: 'Promile je čistě orientační. Neslouží pro posouzení schopnosti řídit! (V ČR platí 0.0 ‰).',
+      newVersion: '🆕 Je dostupná nová verze aplikace.',
+      newVersionReload: 'Obnovit stránku'
     },
     theme: {
       light: '☀️ Světlý režim',
@@ -64,7 +66,7 @@ const translations = {
       savePubButton: 'Uložit hospodu',
       simpleImport: 'Jednoduchý import z existujícího katalogu',
       openQuickCatalog: '📚 Katalog piv ze všech hospod',
-      catalogModalTitle: 'Katalog piv ze všech hospod',
+      catalogModalTitle: 'Plný katalog piv',
       catalogModalSubtitle: 'Vyber piva, která chceš rychle přidat do hospody: {pub}',
       catalogEmpty: 'Zatím nejsou dostupná žádná piva.',
       catalogSourcePubs: 'Kde jsou dostupná',
@@ -142,7 +144,9 @@ const translations = {
       count: 'Ks',
       pricePerUnit: 'Cena/ks',
       total: 'Celkem',
-      add: '+ Přidat kamaráda'
+      add: '+ Přidat kamaráda',
+      alcoholPerUnit: 'Alk/ks (g)',
+      totalAlcohol: 'Celkem (g)'
     },
     userModal: {
       title: '⚙️ Nastavení kamaráda',
@@ -181,7 +185,9 @@ const translations = {
       title: '🍻 Beer menu',
       tableTotal: 'Table total',
       warningTitle: '⚠️ Warning:',
-      warningBody: 'BAC is only approximate. Do not use it to assess driving ability! The legal limit in the Czech Republic is 0.0 ‰.'
+      warningBody: 'BAC is only approximate. Do not use it to assess driving ability! The legal limit in the Czech Republic is 0.0 ‰.',
+      newVersion: '🆕 A new version of the app is available.',
+      newVersionReload: 'Reload page'
     },
     theme: {
       light: '☀️ Light mode',
@@ -225,7 +231,7 @@ const translations = {
       savePubButton: 'Save pub',
       simpleImport: 'Simple import from existing catalog',
       openQuickCatalog: '📚 Beer catalog from all pubs',
-      catalogModalTitle: 'Beer catalog from all pubs',
+      catalogModalTitle: 'Full beer catalog',
       catalogModalSubtitle: 'Select beers you want to quickly add to pub: {pub}',
       catalogEmpty: 'No beers are available yet.',
       catalogSourcePubs: 'Available in pubs',
@@ -303,7 +309,9 @@ const translations = {
       count: 'Qty',
       pricePerUnit: 'Price/unit',
       total: 'Total',
-      add: '+ Add drinker'
+      add: '+ Add drinker',
+      alcoholPerUnit: 'Alc/unit (g)',
+      totalAlcohol: 'Total (g)'
     },
     userModal: {
       title: '⚙️ Drinker settings',
@@ -342,7 +350,9 @@ const translations = {
       title: '🍻 Bierkarte',
       tableTotal: 'Tischsumme',
       warningTitle: '⚠️ Hinweis:',
-      warningBody: 'Der Promillewert ist nur ein Richtwert. Er darf nicht zur Beurteilung der Fahrtüchtigkeit verwendet werden! In Tschechien gilt 0,0 ‰.'
+      warningBody: 'Der Promillewert ist nur ein Richtwert. Er darf nicht zur Beurteilung der Fahrtüchtigkeit verwendet werden! In Tschechien gilt 0,0 ‰.',
+      newVersion: '🆕 Eine neue Version der App ist verfügbar.',
+      newVersionReload: 'Seite neu laden'
     },
     theme: {
       light: '☀️ Heller Modus',
@@ -386,7 +396,7 @@ const translations = {
       savePubButton: 'Kneipe speichern',
       simpleImport: 'Einfacher Import aus vorhandenem Katalog',
       openQuickCatalog: '📚 Bierkatalog aus allen Kneipen',
-      catalogModalTitle: 'Bierkatalog aus allen Kneipen',
+      catalogModalTitle: 'Vollständiger Bierkatalog',
       catalogModalSubtitle: 'Wähle Biere aus, die du schnell zur Kneipe hinzufügen willst: {pub}',
       catalogEmpty: 'Noch keine Biere verfügbar.',
       catalogSourcePubs: 'Verfügbar in',
@@ -464,7 +474,9 @@ const translations = {
       count: 'Stk',
       pricePerUnit: 'Preis/Stk',
       total: 'Gesamt',
-      add: '+ Trinker hinzufügen'
+      add: '+ Trinker hinzufügen',
+      alcoholPerUnit: 'Alk/Stk (g)',
+      totalAlcohol: 'Gesamt (g)'
     },
     userModal: {
       title: '⚙️ Trinkereinstellungen',
