@@ -35,6 +35,12 @@ const translations = {
       pubLabel: 'Hospoda',
       manage: '⚙️ Správa piv',
       addOther: '🍔🥃 Přidat další',
+      friendsChecklistTitle: 'Kdo právě pije — {pub}',
+      manageFriends: '👥 Správa kamarádů',
+      selectAllFriends: 'Vybrat všechny',
+      clearFriendSelection: 'Odznačit všechny',
+      activeFriendsSummary: 'Aktivně pije {count} kamarádů.',
+      noActiveFriends: 'Vyber v seznamu, kdo v této hospodě právě pije.',
       empty: 'Na stole zatím neleží žádné pivo.',
       emptyHint: 'Přidejte ho v administraci piv.'
     },
@@ -124,6 +130,8 @@ const translations = {
       pubLabel: 'Hospoda',
       clearPubDrinking: '🧹 Smazat pití v této hospodě',
       clearPubConfirm: 'Smazat vypitá piva v hospodě "{pub}"?',
+      manageFriends: '👥 Správa kamarádů',
+      noActiveFriends: 'V této hospodě zatím není vybraný žádný aktivní piják.',
       soberIn: 'Čistý za ~{hours} h',
       hasWhat: '📋 Co má {name}',
       alcoholCountList: '🍺 Alkohol pro promile — {name}',
@@ -146,6 +154,18 @@ const translations = {
       delete: '🗑️ Smazat kamaráda',
       mustHaveOne: 'Někdo to pít musí!',
       deleteConfirm: 'Opravdu smazat kamaráda "{name}" ze stolu?'
+    },
+    friendsModal: {
+      title: '👥 Trvalý katalog kamarádů',
+      note: 'Tady spravuješ všechny kamarády natrvalo. Kdo právě pije v konkrétní hospodě, vybíráš v hlavním seznamu zaškrtávátky.',
+      name: 'Jméno',
+      weight: 'Váha',
+      gender: 'Pohlaví',
+      namePlaceholder: 'Jméno kamaráda',
+      delete: 'Smazat kamaráda',
+      add: '+ Přidat kamaráda',
+      save: 'Uložit změny',
+      mustHaveOne: 'V katalogu musí zůstat alespoň jeden kamarád.'
     },
     defaults: {
       unknownBeer: 'Neznámé pivo',
@@ -176,6 +196,12 @@ const translations = {
       pubLabel: 'Pub',
       manage: '⚙️ Beer administration',
       addOther: '🍔🥃 Add other',
+      friendsChecklistTitle: 'Who is drinking now — {pub}',
+      manageFriends: '👥 Manage friends',
+      selectAllFriends: 'Select all',
+      clearFriendSelection: 'Clear all',
+      activeFriendsSummary: '{count} drinkers are currently active.',
+      noActiveFriends: 'Select who is currently drinking in this pub.',
       empty: 'There are no beers on the table yet.',
       emptyHint: 'Add them in beer administration.'
     },
@@ -265,6 +291,8 @@ const translations = {
       pubLabel: 'Pub',
       clearPubDrinking: '🧹 Clear drinking in this pub',
       clearPubConfirm: 'Clear consumed beers in pub "{pub}"?',
+      manageFriends: '👥 Manage friends',
+      noActiveFriends: 'No active drinker is selected for this pub yet.',
       soberIn: 'Sober in ~{hours} h',
       hasWhat: '📋 {name} has',
       alcoholCountList: '🍺 Alcohol count list — {name}',
@@ -287,6 +315,18 @@ const translations = {
       delete: '🗑️ Delete drinker',
       mustHaveOne: 'Someone has to drink!',
       deleteConfirm: 'Do you really want to remove "{name}" from the table?'
+    },
+    friendsModal: {
+      title: '👥 Permanent friend catalog',
+      note: 'Manage the full saved friend catalog here. Use the checklist on the main screen to choose who is currently drinking in each pub.',
+      name: 'Name',
+      weight: 'Weight',
+      gender: 'Gender',
+      namePlaceholder: 'Friend name',
+      delete: 'Delete friend',
+      add: '+ Add friend',
+      save: 'Save changes',
+      mustHaveOne: 'At least one friend must stay in the catalog.'
     },
     defaults: {
       unknownBeer: 'Unknown beer',
@@ -317,6 +357,12 @@ const translations = {
       pubLabel: 'Kneipe',
       manage: '⚙️ Bierverwaltung',
       addOther: '🍔🥃 Anderes hinzufügen',
+      friendsChecklistTitle: 'Wer trinkt gerade — {pub}',
+      manageFriends: '👥 Freunde verwalten',
+      selectAllFriends: 'Alle auswählen',
+      clearFriendSelection: 'Alle abwählen',
+      activeFriendsSummary: '{count} Trinker sind aktuell aktiv.',
+      noActiveFriends: 'Wähle aus, wer in dieser Kneipe gerade trinkt.',
       empty: 'Auf dem Tisch liegt noch kein Bier.',
       emptyHint: 'Füge es in der Bierverwaltung hinzu.'
     },
@@ -406,6 +452,8 @@ const translations = {
       pubLabel: 'Kneipe',
       clearPubDrinking: '🧹 Trinken in dieser Kneipe löschen',
       clearPubConfirm: 'Getrunkene Biere in der Kneipe "{pub}" löschen?',
+      manageFriends: '👥 Freunde verwalten',
+      noActiveFriends: 'Für diese Kneipe ist noch kein aktiver Trinker ausgewählt.',
       soberIn: 'Nüchtern in ~{hours} Std.',
       hasWhat: '📋 {name} hat',
       alcoholCountList: '🍺 Alkoholzählung — {name}',
@@ -428,6 +476,18 @@ const translations = {
       delete: '🗑️ Trinker löschen',
       mustHaveOne: 'Jemand muss es trinken!',
       deleteConfirm: 'Möchtest du "{name}" wirklich vom Tisch entfernen?'
+    },
+    friendsModal: {
+      title: '👥 Dauerhafter Freundekatalog',
+      note: 'Hier verwaltest du alle gespeicherten Freunde dauerhaft. Wer in einer Kneipe gerade trinkt, wählst du auf der Hauptseite per Checkliste aus.',
+      name: 'Name',
+      weight: 'Gewicht',
+      gender: 'Geschlecht',
+      namePlaceholder: 'Name des Freundes',
+      delete: 'Freund löschen',
+      add: '+ Freund hinzufügen',
+      save: 'Änderungen speichern',
+      mustHaveOne: 'Im Katalog muss mindestens ein Freund bleiben.'
     },
     defaults: {
       unknownBeer: 'Unbekanntes Bier',

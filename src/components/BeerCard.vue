@@ -11,13 +11,11 @@ const props = defineProps({
 
 const {
   appData,
-  uiState,
+  activePubFriendEntries,
   incrementCount,
   decrementCount,
   saveBeerEdit,
-  deleteBeer,
-  applyQuickIncrement,
-  applyQuickDecrement
+  deleteBeer
 } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
@@ -108,12 +106,12 @@ function ratingIcon(beer) {
     <!-- Friend tally buttons -->
     <div class="beer-friends-list">
 
-      <div v-for="(friend, fi) in appData.friends" :key="fi" class="friend-pill-wrapper">
-        <button type="button" class="friend-pill" @click="incrementCount(beer.id, fi)">
-          {{ friend.name }}
-          <span class="pill-count" :class="{ 'has-tasted': beer.counts[fi] > 0 }">{{ beer.counts[fi] || 0 }}</span>
+      <div v-for="entry in activePubFriendEntries" :key="entry.friend.id" class="friend-pill-wrapper">
+        <button type="button" class="friend-pill" @click="incrementCount(beer.id, entry.index)">
+          {{ entry.friend.name }}
+          <span class="pill-count" :class="{ 'has-tasted': beer.counts[entry.index] > 0 }">{{ beer.counts[entry.index] || 0 }}</span>
         </button>
-        <button type="button" class="friend-pill-minus" @click="decrementCount(beer.id, fi)">-</button>
+        <button type="button" class="friend-pill-minus" @click="decrementCount(beer.id, entry.index)">-</button>
       </div>
     </div>
 

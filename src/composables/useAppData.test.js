@@ -3,8 +3,8 @@ import { useAppData } from './useAppData.js'
 
 // The composable uses a module-level singleton; clearAll() resets it between tests.
 let addBeer, incrementCount, decrementCount, deletePub
-let addPub, setActivePub, addFriend
-let appData, activePubStats, activeBeers, clearAll
+let addPub, setActivePub, addFriend, saveFriendCatalog, setFriendActiveForPub
+let appData, activePubStats, activeBeers, activePubFriendIds, clearAll
 
 beforeEach(() => {
   const api = useAppData()
@@ -15,9 +15,12 @@ beforeEach(() => {
   addPub = api.addPub
   setActivePub = api.setActivePub
   addFriend = api.addFriend
+  saveFriendCatalog = api.saveFriendCatalog
+  setFriendActiveForPub = api.setFriendActiveForPub
   appData = api.appData
   activePubStats = api.activePubStats
   activeBeers = api.activeBeers
+  activePubFriendIds = api.activePubFriendIds
   clearAll = api.clearAll
   clearAll()
 })
@@ -185,5 +188,50 @@ describe('deletePub', () => {
     addPub('Pub 2')
     const result = deletePub(appData.pubs[0].id)
     expect(result).toBe(true)
+  })
+})
+
+describe('friend catalog management', () => {
+  it('preserves beer counts when friends are reordered', () => {
+    addFriend()
+    addBeer({ name: 'Pivo', price: 60, vol: 0.5, abv: 5.0 })
+    incrementCount(appData.beers[0].id, 0)
+    incrementCount(appData.beers[0].id, 1)
+    incrementCount(appData.beers[0].id, 1)
+
+    const [firstFriend, secondFriend] = appData.friends
+    saveFriendCatalog([secondFriend, firstFriend])
+
+    expect(appData.friends[0].id).toBe(secondFriend.id)
+    expect(appData.beers[0].counts).toEqual([2, 1])
+  })
+
+  it('removes deleted friends from beer counts and keeps remaining totals', () => {
+    addFriend()
+    addBeer({ name: 'Pivo', price: 60, vol: 0.5, abv: 5.0 })
+    incrementCount(appData.beers[0].id, 0)
+    incrementCount(appData.beers[0].id, 1)
+
+    saveFriendCatalog([appData.friends[1]])
+
+    expect(appData.friends).toHaveLength(1)
+    expect(appData.beers[0].counts).toEqual([1])
+  })
+})
+
+describe('active drinkers by pub', () => {
+  it('tracks active drinkers separately for each pub', () => {
+    addFriend()
+    const pub1Id = appData.activePubId
+    const pub2 = addPub('Pub 2')
+
+    setFriendActiveForPub(appData.friends[1].id, false, pub1Id)
+    setActivePub(pub2.id)
+    setFriendActiveForPub(appData.friends[0].id, false, pub2.id)
+
+    expect(activePubFriendIds.value).toEqual([appData.friends[1].id])
+
+    setActivePub(pub1Id)
+    expect(activePubFriendIds.value).toEqual([appData.friends[0].id])
   })
 })

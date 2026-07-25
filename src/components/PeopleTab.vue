@@ -1,26 +1,26 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
-import UserModal from './UserModal.vue'
+import FriendsCatalogModal from './FriendsCatalogModal.vue'
 
-const { appData, activeBeers, activePub, activePubStats, addFriend, setActivePub, clearActivePubDrinking, isBeerCountedAsAlcohol } = useAppData()
+const { appData, activeBeers, activePub, activePubStats, activePubFriendEntries, setActivePub, clearActivePubDrinking, isBeerCountedAsAlcohol } = useAppData()
 const { t, translateBeerStyle } = useI18n()
 
-const activeUserIndex = ref(null)
-const selectedUserIndex = ref(null)
+const selectedUserId = ref(null)
+const friendsModalOpen = ref(false)
 
-const selectedUser = computed(() => {
-  if (selectedUserIndex.value === null) return null
-  return appData.friends[selectedUserIndex.value] || null
+const selectedUserEntry = computed(() => {
+  if (selectedUserId.value === null) return null
+  return activePubFriendEntries.value.find(entry => entry.friend.id === selectedUserId.value) || null
 })
 
 const selectedUserItems = computed(() => {
-  if (selectedUserIndex.value === null) return []
+  if (!selectedUserEntry.value) return []
 
   return activeBeers.value
     .map(beer => {
-      const count = beer.counts?.[selectedUserIndex.value] || 0
+      const count = beer.counts?.[selectedUserEntry.value.index] || 0
       const price = parseFloat(beer.price) || 0
       return {
         id: beer.id,
@@ -35,11 +35,11 @@ const selectedUserItems = computed(() => {
 })
 
 const selectedUserAlcoholItems = computed(() => {
-  if (selectedUserIndex.value === null) return []
+  if (!selectedUserEntry.value) return []
 
   return activeBeers.value
     .map(beer => {
-      const count = beer.counts?.[selectedUserIndex.value] || 0
+      const count = beer.counts?.[selectedUserEntry.value.index] || 0
       const price = parseFloat(beer.price) || 0
       return {
         id: beer.id,
@@ -59,6 +59,16 @@ function onClearActivePubDrinking() {
     clearActivePubDrinking()
   }
 }
+
+watch(activePubFriendEntries, (entries) => {
+  if (entries.length === 0) {
+    selectedUserId.value = null
+    return
+  }
+  if (!entries.some(entry => entry.friend.id === selectedUserId.value)) {
+    selectedUserId.value = entries[0].friend.id
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -73,35 +83,33 @@ function onClearActivePubDrinking() {
       <button type="button" class="btn-warning" @click="onClearActivePubDrinking">
         {{ t('people.clearPubDrinking') }}
       </button>
+      <button type="button" class="btn-secondary" @click="friendsModalOpen = true">
+        {{ t('people.manageFriends') }}
+      </button>
     </div>
 
     <div class="users-grid users-rows">
       <div
-        v-for="(friend, index) in appData.friends"
-        :key="index"
+        v-for="entry in activePubFriendEntries"
+        :key="entry.friend.id"
         class="user-card"
-        @click="selectedUserIndex = index"
+        @click="selectedUserId = entry.friend.id"
       >
-        <button
-          type="button"
-          class="user-card-edit-icon"
-          @click.stop="activeUserIndex = index"
-          :title="t('people.editTitle')"
-        >
-          ✏️
-        </button>
-
-        <div class="user-card-name">{{ friend.name }}</div>
-        <div class="user-card-spend">{{ activePubStats.friendTotals[index] }} {{ t('currency') }}</div>
+        <div class="user-card-name">{{ entry.friend.name }}</div>
+        <div class="user-card-spend">{{ activePubStats.friendTotals[entry.index] }} {{ t('currency') }}</div>
         <div class="user-card-bac">
-          🍺 {{ activePubStats.friendBacs[index].toFixed(2) }} ‰<br>
-          <small style="color:#7f8c8d; font-weight:normal;">{{ t('people.soberIn', { hours: activePubStats.friendSobers[index].toFixed(1) }) }}</small>
+          🍺 {{ activePubStats.friendBacs[entry.index].toFixed(2) }} ‰<br>
+          <small style="color:#7f8c8d; font-weight:normal;">{{ t('people.soberIn', { hours: activePubStats.friendSobers[entry.index].toFixed(1) }) }}</small>
         </div>
       </div>
     </div>
 
-    <div v-if="selectedUser" class="section" style="margin-top: 10px;">
-      <h3 style="text-align: left; margin-bottom: 8px;">{{ t('people.hasWhat', { name: selectedUser.name }) }}</h3>
+    <div v-if="activePubFriendEntries.length === 0" class="section people-empty-state">
+      {{ t('people.noActiveFriends') }}
+    </div>
+
+    <div v-if="selectedUserEntry" class="section" style="margin-top: 10px;">
+      <h3 style="text-align: left; margin-bottom: 8px;">{{ t('people.hasWhat', { name: selectedUserEntry.friend.name }) }}</h3>
 
       <div v-if="selectedUserItems.length === 0" style="color:#7f8c8d;">
         {{ t('people.empty') }}
@@ -124,7 +132,7 @@ function onClearActivePubDrinking() {
         </template>
       </div>
 
-      <h3 style="text-align: left; margin: 18px 0 8px;">{{ t('people.alcoholCountList', { name: selectedUser.name }) }}</h3>
+      <h3 style="text-align: left; margin: 18px 0 8px;">{{ t('people.alcoholCountList', { name: selectedUserEntry.friend.name }) }}</h3>
       <p class="selected-user-note">{{ t('people.alcoholCountNote') }}</p>
 
       <div v-if="selectedUserAlcoholItems.length === 0" style="color:#7f8c8d;">
@@ -149,13 +157,6 @@ function onClearActivePubDrinking() {
       </div>
     </div>
 
-    <button type="button" class="btn-add-friend" @click="addFriend">{{ t('people.add') }}</button>
-
-    <UserModal
-      v-if="activeUserIndex !== null"
-      :friend="appData.friends[activeUserIndex]"
-      :index="activeUserIndex"
-      @close="activeUserIndex = null"
-    />
+    <FriendsCatalogModal v-if="friendsModalOpen" @close="friendsModalOpen = false" />
   </div>
 </template>

@@ -5,14 +5,14 @@ import {
   computeStatsForBeers as _computeStatsForBeers
 } from '../utils/beerStats.js'
 
-const STORAGE_KEY = 'beerAppDataV8'
+const STORAGE_KEY = 'beerAppDataV9'
 const THEME_STORAGE_KEY = 'beerAppThemeV1'
 
 const { t } = useI18n()
 
 function makeDefaultFriends() {
   return [
-    { name: t('defaults.me'), weight: 80, gender: 'm' }
+    { id: makeId(), name: t('defaults.me'), weight: 80, gender: 'm' }
   ]
 }
 
@@ -36,14 +36,33 @@ function makeDefaultPubs() {
   ]
 }
 
+function makeDefaultActiveFriendIdsByPub(friends, pubs) {
+  const friendIds = friends.map(friend => friend.id)
+  return Object.fromEntries(pubs.map(pub => [pub.id, [...friendIds]]))
+}
+
+function normalizeFriend(friend, index) {
+  const parsedWeight = Number(friend?.weight)
+  return {
+    id: String(friend?.id || makeId()),
+    name: String(friend?.name || '').trim() || t('defaults.friend', { number: index + 1 }),
+    weight: Number.isFinite(parsedWeight) && parsedWeight > 0 ? parsedWeight : 80,
+    gender: friend?.gender === 'f' ? 'f' : 'm'
+  }
+}
+
+const initialFriends = makeDefaultFriends()
+const initialPubs = makeDefaultPubs()
+
 // Module-level singleton so all components share the same state
 const appData = reactive({
   startTime: makeDefaultStart(),
-  friends: makeDefaultFriends(),
-  pubs: makeDefaultPubs(),
-  activePubId: 'pub-default',
+  friends: initialFriends,
+  pubs: initialPubs,
+  activePubId: initialPubs[0].id,
   beers: [],
-  catalog: []
+  catalog: [],
+  activeFriendIdsByPub: makeDefaultActiveFriendIdsByPub(initialFriends, initialPubs)
 })
 
 const uiState = reactive({
@@ -104,6 +123,26 @@ function ensurePubState() {
   }
 }
 
+function ensureActiveFriendSelectionState() {
+  const validFriendIds = new Set(appData.friends.map(friend => friend.id))
+  const fallbackSelection = appData.friends.map(friend => friend.id)
+  const nextSelections = {}
+
+  appData.pubs.forEach(pub => {
+    const rawSelection = Array.isArray(appData.activeFriendIdsByPub?.[pub.id])
+      ? appData.activeFriendIdsByPub[pub.id]
+      : fallbackSelection
+
+    nextSelections[pub.id] = [...new Set(
+      rawSelection
+        .map(id => String(id))
+        .filter(id => validFriendIds.has(id))
+    )]
+  })
+
+  appData.activeFriendIdsByPub = nextSelections
+}
+
 function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)) } catch (e) {}
 }
@@ -131,14 +170,19 @@ function loadData() {
       appData.activePubId = parsed.activePubId || appData.pubs[0]?.id || 'pub-default'
       appData.beers = parsed.beers || []
       appData.catalog = Array.isArray(parsed.catalog) ? parsed.catalog : []
+      appData.activeFriendIdsByPub = parsed.activeFriendIdsByPub || {}
     }
   } catch (e) {}
 
-  appData.friends = appData.friends.map(f =>
-    typeof f === 'string' ? { name: f, weight: 80, gender: 'm' } : f
+  appData.friends = appData.friends.map((friend, index) =>
+    normalizeFriend(
+      typeof friend === 'string' ? { name: friend, weight: 80, gender: 'm' } : friend,
+      index
+    )
   )
   if (!appData.startTime) appData.startTime = makeDefaultStart()
   ensurePubState()
+  ensureActiveFriendSelectionState()
 
   appData.beers.forEach(beer => {
     if (!beer.counts) beer.counts = new Array(appData.friends.length).fill(0)
@@ -172,6 +216,17 @@ const activeBeers = computed(() =>
 const activePubStats = computed(() =>
   computeStatsForBeers(activeBeers.value)
 )
+
+const activePubFriendIds = computed(() =>
+  appData.activeFriendIdsByPub?.[appData.activePubId] || []
+)
+
+const activePubFriendEntries = computed(() => {
+  const activeIds = new Set(activePubFriendIds.value)
+  return appData.friends
+    .map((friend, index) => ({ friend, index }))
+    .filter(({ friend }) => activeIds.has(friend.id))
+})
 
 function incrementCount(beerId, friendIndex) {
   const beer = appData.beers.find(b => b.id === beerId)
@@ -357,10 +412,10 @@ function moveBeerInPub(beerId, direction) {
 }
 
 function addFriend() {
-  appData.friends.push({ name: t('defaults.friend', { number: appData.friends.length + 1 }), weight: 80, gender: 'm' })
-  appData.beers.forEach(b => b.counts.push(0))
-  normalizeQuickSelection()
-  saveData()
+  saveFriendCatalog([
+    ...appData.friends,
+    { id: makeId(), name: t('defaults.friend', { number: appData.friends.length + 1 }), weight: 80, gender: 'm' }
+  ])
 }
 
 function setActivePub(pubId) {
@@ -374,6 +429,10 @@ function addPub(name, address = '') {
   if (!trimmedName) return null
   const newPub = { id: makeId(), name: trimmedName, address: String(address || '').trim() }
   appData.pubs.push(newPub)
+  appData.activeFriendIdsByPub = {
+    ...appData.activeFriendIdsByPub,
+    [newPub.id]: appData.friends.map(friend => friend.id)
+  }
   appData.activePubId = newPub.id
   saveData()
   return newPub
@@ -400,11 +459,13 @@ function deletePub(pubId) {
   })
 
   appData.pubs.splice(idx, 1)
+  delete appData.activeFriendIdsByPub[pubId]
 
   if (appData.activePubId === pubId) {
     appData.activePubId = replacement.id
   }
 
+  ensureActiveFriendSelectionState()
   saveData()
   return true
 }
@@ -415,13 +476,84 @@ function updateFriend(index, field, value) {
   saveData()
 }
 
-function deleteFriend(index) {
-  appData.friends.splice(index, 1)
-  appData.beers.forEach(b => b.counts.splice(index, 1))
-  uiState.quickSelection = uiState.quickSelection
-    .filter(selectedIndex => selectedIndex !== index)
-    .map(selectedIndex => selectedIndex > index ? selectedIndex - 1 : selectedIndex)
+function saveFriendCatalog(friends) {
+  const currentFriends = appData.friends
+  const normalizedFriends = (Array.isArray(friends) && friends.length ? friends : makeDefaultFriends())
+    .map((friend, index) => normalizeFriend(friend, index))
+
+  const currentIndexById = new Map(currentFriends.map((friend, index) => [friend.id, index]))
+  const newFriendIds = normalizedFriends
+    .filter(friend => !currentIndexById.has(friend.id))
+    .map(friend => friend.id)
+  const validFriendIds = new Set(normalizedFriends.map(friend => friend.id))
+
+  appData.beers.forEach(beer => {
+    const currentCounts = Array.isArray(beer.counts) ? beer.counts : []
+    beer.counts = normalizedFriends.map(friend => {
+      const currentIndex = currentIndexById.get(friend.id)
+      return currentIndex === undefined ? 0 : (currentCounts[currentIndex] || 0)
+    })
+  })
+
+  appData.friends = normalizedFriends
+  appData.activeFriendIdsByPub = Object.fromEntries(
+    appData.pubs.map(pub => {
+      const currentSelection = Array.isArray(appData.activeFriendIdsByPub?.[pub.id])
+        ? appData.activeFriendIdsByPub[pub.id]
+        : []
+      const filteredSelection = currentSelection.filter(id => validFriendIds.has(id))
+      return [pub.id, [...new Set([...filteredSelection, ...newFriendIds])]]
+    })
+  )
+
   normalizeQuickSelection()
+  saveData()
+}
+
+function deleteFriend(index) {
+  saveFriendCatalog(appData.friends.filter((_, friendIndex) => friendIndex !== index))
+}
+
+function setFriendActiveForPub(friendId, isActive, pubId = appData.activePubId) {
+  const normalizedFriendId = String(friendId)
+  if (!appData.pubs.some(pub => pub.id === pubId)) return
+  if (!appData.friends.some(friend => friend.id === normalizedFriendId)) return
+
+  const currentSelection = appData.activeFriendIdsByPub?.[pubId] || []
+  const hasFriend = currentSelection.includes(normalizedFriendId)
+  if (isActive && !hasFriend) {
+    appData.activeFriendIdsByPub = {
+      ...appData.activeFriendIdsByPub,
+      [pubId]: [...currentSelection, normalizedFriendId]
+    }
+    saveData()
+    return
+  }
+
+  if (!isActive && hasFriend) {
+    appData.activeFriendIdsByPub = {
+      ...appData.activeFriendIdsByPub,
+      [pubId]: currentSelection.filter(id => id !== normalizedFriendId)
+    }
+    saveData()
+  }
+}
+
+function selectAllFriendsForPub(pubId = appData.activePubId) {
+  if (!appData.pubs.some(pub => pub.id === pubId)) return
+  appData.activeFriendIdsByPub = {
+    ...appData.activeFriendIdsByPub,
+    [pubId]: appData.friends.map(friend => friend.id)
+  }
+  saveData()
+}
+
+function clearActiveFriendsForPub(pubId = appData.activePubId) {
+  if (!appData.pubs.some(pub => pub.id === pubId)) return
+  appData.activeFriendIdsByPub = {
+    ...appData.activeFriendIdsByPub,
+    [pubId]: []
+  }
   saveData()
 }
 
@@ -442,12 +574,15 @@ function clearActivePubDrinking() {
 }
 
 function clearAll() {
+  const defaultFriends = makeDefaultFriends()
+  const defaultPubs = makeDefaultPubs()
   appData.startTime = makeDefaultStart()
-  appData.friends = makeDefaultFriends()
-  appData.pubs = makeDefaultPubs()
+  appData.friends = defaultFriends
+  appData.pubs = defaultPubs
   appData.activePubId = appData.pubs[0].id
   appData.beers = []
   appData.catalog = []
+  appData.activeFriendIdsByPub = makeDefaultActiveFriendIdsByPub(defaultFriends, defaultPubs)
   uiState.quickMode = 'single'
   uiState.quickSelection = [0]
   saveData()
@@ -509,13 +644,14 @@ loadTheme()
 
 export function useAppData() {
   return {
-    appData, stats, uiState, activePub, activeBeers, activePubStats,
+    appData, stats, uiState, activePub, activeBeers, activePubStats, activePubFriendIds, activePubFriendEntries,
     loadData, saveData,
     incrementCount, decrementCount,
     saveBeerEdit, deleteBeer, adjustRating,
     addBeer, addOtherForFriend, importBeers, updateBeerPrice, moveBeerInPub,
     setActivePub, addPub, updatePub, deletePub,
-    addFriend, updateFriend, deleteFriend,
+    addFriend, updateFriend, deleteFriend, saveFriendCatalog,
+    setFriendActiveForPub, selectAllFriendsForPub, clearActiveFriendsForPub,
     resetCounts, clearActivePubDrinking, clearAll,
     setTheme, toggleTheme,
     setQuickMode, toggleQuickFriend, quickSelectAll, quickClearSelection,
