@@ -50,6 +50,7 @@ const selectedCatalogBeer = ref(null)
 const pubManagementSection = useTemplateRef('pubManagementSection')
 const showQuickCatalogModal = ref(false)
 const quickCatalogSelection = ref({})
+const quickCatalogPrices = ref({})
 
 // Import confirmation dialog
 const showImportDialog = ref(false)
@@ -95,6 +96,7 @@ const selectedCatalogBeerDetails = computed(() =>
 const quickCatalogItems = computed(() => {
   const activePubBeerKeys = new Set(activeBeers.value.map(makeBeerFingerprint))
   const byKey = new Map()
+  const namesSeen = new Set()
 
   appData.beers.forEach(beer => {
     const key = makeBeerFingerprint(beer)
@@ -106,12 +108,33 @@ const quickCatalogItems = computed(() => {
         price: Number(beer.price) || 0,
         vol: Number(beer.vol) || 0.5,
         abv: Number(beer.abv) || 0,
-        pubNames: new Set()
+        pubNames: new Set(),
+        fromCatalogOnly: false
       })
     }
-
+    namesSeen.add((beer.name || '').trim().toLowerCase())
     const pubName = appData.pubs.find(pub => pub.id === beer.pubId)?.name
     if (pubName) byKey.get(key).pubNames.add(pubName)
+  })
+
+  combinedCatalog.value.forEach(beer => {
+    const lname = (beer.name || '').trim().toLowerCase()
+    if (namesSeen.has(lname)) return
+    namesSeen.add(lname)
+    const entry = { ...beer, price: Number(beer.price) || 0 }
+    const key = makeBeerFingerprint(entry)
+    if (!byKey.has(key)) {
+      byKey.set(key, {
+        key,
+        name: beer.name || '',
+        style: beer.style || '',
+        price: Number(beer.price) || 0,
+        vol: Number(beer.vol) || 0.5,
+        abv: Number(beer.abv) || 0,
+        pubNames: new Set(),
+        fromCatalogOnly: true
+      })
+    }
   })
 
   return Array.from(byKey.values())
@@ -157,6 +180,7 @@ function onSimpleImportChange() {
 
 function openQuickCatalogModal() {
   quickCatalogSelection.value = {}
+  quickCatalogPrices.value = {}
   showQuickCatalogModal.value = true
 }
 
@@ -183,10 +207,13 @@ const selectedQuickCatalogCount = computed(() =>
 function addSelectedCatalogBeersToPub() {
   quickCatalogItems.value.forEach(item => {
     if (!quickCatalogSelection.value[item.key] || item.existsInActivePub) return
+    const price = quickCatalogPrices.value[item.key] != null
+      ? parseFloat(quickCatalogPrices.value[item.key]) || 0
+      : item.price
     addBeer({
       name: item.name,
       style: item.style,
-      price: item.price,
+      price,
       vol: item.vol,
       abv: item.abv
     })
@@ -369,22 +396,33 @@ function cancelDeletePub() {
             <div class="quick-catalog-head">
               <span></span>
               <span>{{ t('admin.importColName') }}</span>
-              <span>{{ t('admin.importColStyle') }}</span>
+              <span class="qc-col-style">{{ t('admin.importColStyle') }}</span>
               <span>{{ t('admin.importColPrice') }}</span>
-              <span>{{ t('admin.importColVol') }}</span>
-              <span>{{ t('admin.importColAbv') }}</span>
-              <span>{{ t('admin.catalogSourcePubs') }}</span>
+              <span class="qc-col-vol">{{ t('admin.importColVol') }}</span>
+              <span class="qc-col-abv">{{ t('admin.importColAbv') }}</span>
+              <span class="qc-col-pubs">{{ t('admin.catalogSourcePubs') }}</span>
             </div>
             <label v-for="item in quickCatalogItems" :key="item.key" class="quick-catalog-row">
               <input v-model="quickCatalogSelection[item.key]" type="checkbox" :disabled="item.existsInActivePub">
               <span>{{ item.name }}</span>
-              <span>{{ translateBeerStyle(item.style) }}</span>
-              <span>{{ item.price }}</span>
-              <span>{{ item.vol }}</span>
-              <span>{{ item.abv }}</span>
-              <span>
+              <span class="qc-col-style">{{ translateBeerStyle(item.style) }}</span>
+              <input
+                v-if="!item.existsInActivePub"
+                v-model="quickCatalogPrices[item.key]"
+                class="qc-price-input"
+                type="number"
+                min="0"
+                step="0.5"
+                :placeholder="item.price || '0'"
+                @click.prevent
+              >
+              <span v-else>{{ item.price }}</span>
+              <span class="qc-col-vol">{{ item.vol }}</span>
+              <span class="qc-col-abv">{{ item.abv }}</span>
+              <span class="qc-col-pubs">
                 {{ item.pubNames.join(', ') }}
                 <em v-if="item.existsInActivePub"> · {{ t('admin.catalogAlreadyInPub') }}</em>
+                <em v-else-if="item.fromCatalogOnly" style="color: var(--muted);">katalog</em>
               </span>
             </label>
           </div>

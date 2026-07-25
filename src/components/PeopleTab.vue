@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import UserModal from './UserModal.vue'
@@ -9,6 +9,7 @@ const { t, translateBeerStyle } = useI18n()
 
 const activeUserIndex = ref(null)
 const selectedUserIndex = ref(null)
+const consumptionSection = ref(null)
 
 const selectedUser = computed(() => {
   if (selectedUserIndex.value === null) return null
@@ -34,25 +35,37 @@ const selectedUserItems = computed(() => {
     .filter(item => item.count > 0)
 })
 
+function calcAlcoholGrams(beer) {
+  const vol = parseFloat(beer.vol) || 0
+  const abv = parseFloat(beer.abv) || 0
+  return Math.round(vol * 1000 * (abv / 100) * 0.789 * 10) / 10
+}
+
 const selectedUserAlcoholItems = computed(() => {
   if (selectedUserIndex.value === null) return []
 
   return activeBeers.value
     .map(beer => {
       const count = beer.counts?.[selectedUserIndex.value] || 0
-      const price = parseFloat(beer.price) || 0
+      const alcoholGrams = calcAlcoholGrams(beer)
       return {
         id: beer.id,
         name: beer.name,
         style: beer.style,
         count,
-        price,
-        total: count * price,
+        alcoholGrams,
+        totalAlcohol: Math.round(count * alcoholGrams * 10) / 10,
         countsAsAlcohol: isBeerCountedAsAlcohol(beer)
       }
     })
     .filter(item => item.count > 0 && item.countsAsAlcohol)
 })
+
+async function selectUser(index) {
+  selectedUserIndex.value = index
+  await nextTick()
+  consumptionSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 function onClearActivePubDrinking() {
   if (confirm(t('people.clearPubConfirm', { pub: activePub.value?.name || t('defaults.defaultPub') }))) {
@@ -80,7 +93,7 @@ function onClearActivePubDrinking() {
         v-for="(friend, index) in appData.friends"
         :key="index"
         class="user-card"
-        @click="selectedUserIndex = index"
+        @click="selectUser(index)"
       >
         <button
           type="button"
@@ -100,7 +113,7 @@ function onClearActivePubDrinking() {
       </div>
     </div>
 
-    <div v-if="selectedUser" class="section" style="margin-top: 10px;">
+    <div v-if="selectedUser" ref="consumptionSection" class="section" style="margin-top: 10px;">
       <h3 style="text-align: left; margin-bottom: 8px;">{{ t('people.hasWhat', { name: selectedUser.name }) }}</h3>
 
       <div v-if="selectedUserItems.length === 0" style="color:#7f8c8d;">
@@ -134,8 +147,8 @@ function onClearActivePubDrinking() {
       <div v-else class="selected-user-items">
         <div class="selected-user-items-head">{{ t('people.beer') }}</div>
         <div class="selected-user-items-head">{{ t('people.count') }}</div>
-        <div class="selected-user-items-head">{{ t('people.pricePerUnit') }}</div>
-        <div class="selected-user-items-head">{{ t('people.total') }}</div>
+        <div class="selected-user-items-head">{{ t('people.alcoholPerUnit') }}</div>
+        <div class="selected-user-items-head">{{ t('people.totalAlcohol') }}</div>
 
         <template v-for="item in selectedUserAlcoholItems" :key="`alcohol-${item.id}`">
           <div>
@@ -143,8 +156,8 @@ function onClearActivePubDrinking() {
             <div v-if="item.style" style="font-size: 0.85em; color:#7f8c8d;">{{ translateBeerStyle(item.style) }}</div>
           </div>
           <div>{{ item.count }}x</div>
-          <div>{{ item.price }} {{ t('currency') }}</div>
-          <div><strong>{{ item.total }} {{ t('currency') }}</strong></div>
+          <div>{{ item.alcoholGrams }} g</div>
+          <div><strong>{{ item.totalAlcohol }} g</strong></div>
         </template>
       </div>
     </div>
