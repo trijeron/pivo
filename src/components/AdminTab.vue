@@ -48,6 +48,8 @@ const simpleImport = ref(true)
 const showAutocomplete = ref(false)
 const selectedCatalogBeer = ref(null)
 const pubManagementSection = useTemplateRef('pubManagementSection')
+const showQuickCatalogModal = ref(false)
+const quickCatalogSelection = ref({})
 
 // Import confirmation dialog
 const showImportDialog = ref(false)
@@ -56,6 +58,16 @@ const parsedImportBeers = ref([])
 // Delete pub confirmation dialog
 const showDeletePubModal = ref(false)
 const pubToDelete = ref(null)
+
+function makeBeerFingerprint(beer) {
+  return [
+    String(beer.name || '').trim().toLowerCase(),
+    String(beer.style || '').trim().toLowerCase(),
+    Number(beer.price) || 0,
+    Number(beer.vol) || 0.5,
+    Number(beer.abv) || 0
+  ].join('|')
+}
 
 watch(activePub, (pub) => {
   editPubName.value = pub?.name || ''
@@ -79,6 +91,37 @@ const selectedCatalogBeerDetails = computed(() =>
     ? `${translateBeerStyle(selectedCatalogBeer.value.style)} • ${selectedCatalogBeer.value.vol}l • ${selectedCatalogBeer.value.abv}%`
     : ''
 )
+
+const quickCatalogItems = computed(() => {
+  const activePubBeerKeys = new Set(activeBeers.value.map(makeBeerFingerprint))
+  const byKey = new Map()
+
+  appData.beers.forEach(beer => {
+    const key = makeBeerFingerprint(beer)
+    if (!byKey.has(key)) {
+      byKey.set(key, {
+        key,
+        name: beer.name || '',
+        style: beer.style || '',
+        price: Number(beer.price) || 0,
+        vol: Number(beer.vol) || 0.5,
+        abv: Number(beer.abv) || 0,
+        pubNames: new Set()
+      })
+    }
+
+    const pubName = appData.pubs.find(pub => pub.id === beer.pubId)?.name
+    if (pubName) byKey.get(key).pubNames.add(pubName)
+  })
+
+  return Array.from(byKey.values())
+    .map(item => ({
+      ...item,
+      pubNames: Array.from(item.pubNames).sort((a, b) => a.localeCompare(b)),
+      existsInActivePub: activePubBeerKeys.has(item.key)
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+})
 
 function syncFromCatalogBeer(item, updatePrice = true) {
   selectedCatalogBeer.value = item
@@ -110,6 +153,45 @@ function onSimpleImportChange() {
   if (simpleImport.value && selectedCatalogBeer.value) {
     syncFromCatalogBeer(selectedCatalogBeer.value, false)
   }
+}
+
+function openQuickCatalogModal() {
+  quickCatalogSelection.value = {}
+  showQuickCatalogModal.value = true
+}
+
+function closeQuickCatalogModal() {
+  showQuickCatalogModal.value = false
+}
+
+function selectAllQuickCatalog() {
+  const next = {}
+  quickCatalogItems.value.forEach(item => {
+    if (!item.existsInActivePub) next[item.key] = true
+  })
+  quickCatalogSelection.value = next
+}
+
+function clearQuickCatalogSelection() {
+  quickCatalogSelection.value = {}
+}
+
+const selectedQuickCatalogCount = computed(() =>
+  quickCatalogItems.value.reduce((count, item) => count + (quickCatalogSelection.value[item.key] ? 1 : 0), 0)
+)
+
+function addSelectedCatalogBeersToPub() {
+  quickCatalogItems.value.forEach(item => {
+    if (!quickCatalogSelection.value[item.key] || item.existsInActivePub) return
+    addBeer({
+      name: item.name,
+      style: item.style,
+      price: item.price,
+      vol: item.vol,
+      abv: item.abv
+    })
+  })
+  closeQuickCatalogModal()
 }
 
 function submitPub() {
@@ -272,6 +354,50 @@ function cancelDeletePub() {
 
 <template>
   <div class="tab-content">
+    <div v-if="showQuickCatalogModal" class="modal" @click.self="closeQuickCatalogModal">
+      <div class="modal-content quick-catalog-modal-content">
+        <span class="close-modal" @click="closeQuickCatalogModal">&times;</span>
+        <h3>{{ t('admin.catalogModalTitle') }}</h3>
+        <p class="quick-catalog-subtitle">{{ t('admin.catalogModalSubtitle', { pub: activePub?.name || t('defaults.defaultPub') }) }}</p>
+        <div v-if="quickCatalogItems.length === 0" class="price-list-empty">{{ t('admin.catalogEmpty') }}</div>
+        <template v-else>
+          <div class="quick-catalog-actions">
+            <button type="button" class="btn-secondary" @click="selectAllQuickCatalog">{{ t('admin.catalogSelectAll') }}</button>
+            <button type="button" class="btn-secondary" @click="clearQuickCatalogSelection">{{ t('admin.catalogClear') }}</button>
+          </div>
+          <div class="quick-catalog-list">
+            <div class="quick-catalog-head">
+              <span></span>
+              <span>{{ t('admin.importColName') }}</span>
+              <span>{{ t('admin.importColStyle') }}</span>
+              <span>{{ t('admin.importColPrice') }}</span>
+              <span>{{ t('admin.importColVol') }}</span>
+              <span>{{ t('admin.importColAbv') }}</span>
+              <span>{{ t('admin.catalogSourcePubs') }}</span>
+            </div>
+            <label v-for="item in quickCatalogItems" :key="item.key" class="quick-catalog-row">
+              <input v-model="quickCatalogSelection[item.key]" type="checkbox" :disabled="item.existsInActivePub">
+              <span>{{ item.name }}</span>
+              <span>{{ translateBeerStyle(item.style) }}</span>
+              <span>{{ item.price }}</span>
+              <span>{{ item.vol }}</span>
+              <span>{{ item.abv }}</span>
+              <span>
+                {{ item.pubNames.join(', ') }}
+                <em v-if="item.existsInActivePub"> · {{ t('admin.catalogAlreadyInPub') }}</em>
+              </span>
+            </label>
+          </div>
+          <div class="import-dialog-actions">
+            <button type="button" class="btn-add" :disabled="selectedQuickCatalogCount === 0" @click="addSelectedCatalogBeersToPub">
+              {{ t('admin.catalogQuickAdd', { count: selectedQuickCatalogCount }) }}
+            </button>
+            <button type="button" class="btn-secondary" @click="closeQuickCatalogModal">{{ t('admin.importCancel') }}</button>
+          </div>
+        </template>
+      </div>
+    </div>
+
     <!-- Import confirmation dialog -->
     <div v-if="showImportDialog" class="modal" @click.self="cancelImport">
       <div class="modal-content import-modal-content">
@@ -342,6 +468,7 @@ function cancelDeletePub() {
         <p v-if="simpleImport && selectedCatalogBeerDetails" class="catalog-hint">
           {{ selectedCatalogBeerDetails }}
         </p>
+        <button type="button" class="btn-secondary" @click="openQuickCatalogModal">{{ t('admin.openQuickCatalog') }}</button>
         <select v-model="newStyle" class="new-beer-style" @change="onStyleChange">
           <option value="">{{ t('admin.beerStylePlaceholder') }}</option>
           <optgroup v-for="group in beerStyleGroups" :key="group.label" :label="translateBeerGroupLabel(group.label)">

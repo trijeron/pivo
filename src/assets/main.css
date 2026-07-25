@@ -186,6 +186,34 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .import-dialog-actions .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
 .import-dialog-actions .btn-secondary { flex: 1; text-align: center; }
 
+.quick-catalog-modal-content { max-width: 760px !important; width: 96% !important; }
+.quick-catalog-subtitle { margin: 0 0 12px; color: var(--muted); text-align: center; }
+.quick-catalog-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+.quick-catalog-list { max-height: 380px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+.quick-catalog-head, .quick-catalog-row {
+  display: grid;
+  grid-template-columns: 28px minmax(140px, 1.4fr) minmax(120px, 1.2fr) 70px 60px 60px minmax(180px, 1.8fr);
+  gap: 6px;
+  align-items: center;
+  padding: 8px 10px;
+  font-size: 0.9em;
+}
+.quick-catalog-head {
+  font-size: 0.78em;
+  font-weight: bold;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.quick-catalog-row { border-bottom: 1px solid var(--border); background: var(--surface-alt); }
+.quick-catalog-row:last-child { border-bottom: none; }
+.quick-catalog-row input { margin: 0; }
+.quick-catalog-row em { color: var(--muted); font-size: 0.9em; }
+
 /* TAB 3: PIJÁCI A ÚTRATA */
 .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
 .users-rows { grid-template-columns: 1fr; }
@@ -248,4 +276,5 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
   .price-list-row { flex-wrap: wrap; }
   .price-list-editor { grid-template-columns: 1fr; width: 100%; }
   .price-list-actions { width: 100%; }
+  .quick-catalog-head, .quick-catalog-row { grid-template-columns: 28px minmax(120px, 1fr) minmax(100px, 1fr) 60px 50px 50px minmax(140px, 1.2fr); font-size: 0.8em; }
 }
