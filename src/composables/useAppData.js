@@ -30,9 +30,33 @@ function makeId() {
   return crypto.randomUUID()
 }
 
+function generateNickname(name) {
+  return String(name || '').trim()
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '')
+    || 'pub'
+}
+
+function generateUniquePubNickname(name, excludeId = null) {
+  const base = generateNickname(name)
+  const existingNicknames = new Set(
+    appData.pubs
+      .filter(pub => excludeId === null || pub.id !== excludeId)
+      .map(pub => pub.nickname)
+      .filter(Boolean)
+  )
+  let nick = base
+  let i = 2
+  while (existingNicknames.has(nick)) { nick = `${base}_${i++}` }
+  return nick
+}
+
 function makeDefaultPubs() {
+  const name = t('defaults.defaultPub')
   return [
-    { id: 'pub-default', name: t('defaults.defaultPub'), address: '' }
+    { id: 'pub-default', name, address: '', nickname: generateNickname(name) }
   ]
 }
 
@@ -111,12 +135,24 @@ function ensurePubState() {
     .map(pub => ({
       id: String(pub.id),
       name: String(pub.name || t('defaults.defaultPub')).trim() || t('defaults.defaultPub'),
-      address: String(pub.address || '').trim()
+      address: String(pub.address || '').trim(),
+      nickname: String(pub.nickname || '').trim()
     }))
 
   if (appData.pubs.length === 0) {
     appData.pubs = makeDefaultPubs()
   }
+
+  // Ensure all pubs have valid, unique nicknames
+  const usedNicknames = new Set()
+  appData.pubs.forEach(pub => {
+    let nick = pub.nickname || generateNickname(pub.name)
+    const base = nick
+    let i = 2
+    while (usedNicknames.has(nick)) { nick = `${base}_${i++}` }
+    pub.nickname = nick
+    usedNicknames.add(nick)
+  })
 
   if (!appData.pubs.some(pub => pub.id === appData.activePubId)) {
     appData.activePubId = appData.pubs[0].id
@@ -427,7 +463,8 @@ function setActivePub(pubId) {
 function addPub(name, address = '') {
   const trimmedName = String(name || '').trim()
   if (!trimmedName) return null
-  const newPub = { id: makeId(), name: trimmedName, address: String(address || '').trim() }
+  const nickname = generateUniquePubNickname(trimmedName)
+  const newPub = { id: makeId(), name: trimmedName, address: String(address || '').trim(), nickname }
   appData.pubs.push(newPub)
   appData.activeFriendIdsByPub = {
     ...appData.activeFriendIdsByPub,
@@ -444,6 +481,7 @@ function updatePub(pubId, { name, address }) {
 
   pub.name = String(name || '').trim() || t('defaults.defaultPub')
   pub.address = String(address || '').trim()
+  pub.nickname = generateUniquePubNickname(pub.name, pubId)
   saveData()
   return pub
 }
@@ -640,6 +678,43 @@ function applyQuickDecrement(beerId) {
   applyQuickCountChange(beerId, -1)
 }
 
+function copyBeersFromPub(sourcePubId, targetPubId = appData.activePubId) {
+  if (sourcePubId === targetPubId) return 0
+  if (!appData.pubs.some(p => p.id === sourcePubId)) return 0
+  if (!appData.pubs.some(p => p.id === targetPubId)) return 0
+
+  const sourceBeers = appData.beers.filter(b => b.pubId === sourcePubId)
+  const targetBeerNames = new Set(
+    appData.beers
+      .filter(b => b.pubId === targetPubId)
+      .map(b => String(b.name || '').trim().toLowerCase())
+  )
+
+  let count = 0
+  sourceBeers.forEach(beer => {
+    const name = String(beer.name || '').trim()
+    if (!name || targetBeerNames.has(name.toLowerCase())) return
+    appData.beers.push({
+      id: makeId(),
+      pubId: targetPubId,
+      name,
+      style: beer.style,
+      price: beer.price,
+      vol: beer.vol,
+      abv: beer.abv,
+      drinkTime: beer.drinkTime,
+      counts: new Array(appData.friends.length).fill(0),
+      likes: 0,
+      dislikes: 0
+    })
+    targetBeerNames.add(name.toLowerCase())
+    count++
+  })
+
+  if (count > 0) saveData()
+  return count
+}
+
 loadTheme()
 
 export function useAppData() {
@@ -656,6 +731,7 @@ export function useAppData() {
     setTheme, toggleTheme,
     setQuickMode, toggleQuickFriend, quickSelectAll, quickClearSelection,
     applyQuickIncrement, applyQuickDecrement,
+    copyBeersFromPub,
     isBeerCountedAsAlcohol
   }
 }

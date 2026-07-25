@@ -4,6 +4,13 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import { beerCatalog, beerStyleGroups, styleDefaultAbv } from '../data/beerCatalog.js'
 
+const props = defineProps({
+  pendingPubNickname: {
+    type: String,
+    default: null
+  }
+})
+
 const {
   appData,
   activePub,
@@ -18,7 +25,8 @@ const {
   saveBeerEdit,
   deleteBeer,
   updateBeerPrice,
-  moveBeerInPub
+  moveBeerInPub,
+  copyBeersFromPub
 } = useAppData()
 const { t, translateBeerGroupLabel, translateBeerStyle } = useI18n()
 
@@ -59,6 +67,14 @@ const parsedImportBeers = ref([])
 // Delete pub confirmation dialog
 const showDeletePubModal = ref(false)
 const pubToDelete = ref(null)
+
+// Copy beers modal
+const showCopyBeersModal = ref(false)
+const copyBeersSourceId = ref('')
+const copyBeersMessage = ref('')
+
+// Pub URL copy feedback
+const pubUrlCopied = ref(false)
 
 function makeBeerFingerprint(beer) {
   return [
@@ -377,10 +393,75 @@ function cancelDeletePub() {
   showDeletePubModal.value = false
   pubToDelete.value = null
 }
+
+const activePubUrl = computed(() => {
+  if (!activePub.value?.nickname) return ''
+  return window.location.origin + window.location.pathname + '#' + activePub.value.nickname
+})
+
+const otherPubs = computed(() =>
+  appData.pubs.filter(p => p.id !== appData.activePubId)
+)
+
+function copyPubUrl() {
+  if (!activePubUrl.value) return
+  navigator.clipboard.writeText(activePubUrl.value).then(() => {
+    pubUrlCopied.value = true
+    setTimeout(() => { pubUrlCopied.value = false }, 2000)
+  })
+}
+
+function openCopyBeersModal() {
+  copyBeersSourceId.value = otherPubs.value[0]?.id || ''
+  copyBeersMessage.value = ''
+  showCopyBeersModal.value = true
+}
+
+function closeCopyBeersModal() {
+  showCopyBeersModal.value = false
+}
+
+function confirmCopyBeers() {
+  if (!copyBeersSourceId.value) return
+  const count = copyBeersFromPub(copyBeersSourceId.value)
+  copyBeersMessage.value = count > 0
+    ? t('admin.copyBeersCount', { count })
+    : t('admin.copyBeersNoneNew')
+}
 </script>
 
 <template>
   <div class="tab-content">
+    <!-- Pub not found notice -->
+    <div v-if="pendingPubNickname" class="pub-not-found-notice">
+      <strong>{{ t('admin.pubNotFound', { nickname: pendingPubNickname }) }}</strong>
+      <span>{{ t('admin.pubNotFoundHint') }}</span>
+    </div>
+
+    <!-- Copy beers modal -->
+    <div v-if="showCopyBeersModal" class="modal" @click.self="closeCopyBeersModal">
+      <div class="modal-content">
+        <span class="close-modal" @click="closeCopyBeersModal">&times;</span>
+        <h3>{{ t('admin.copyBeersModalTitle') }}</h3>
+        <p style="color: var(--muted); font-size: 0.9em; margin-bottom: 12px;">
+          {{ t('admin.addBeerForPub', { pub: activePub?.name || t('defaults.defaultPub') }) }}
+        </p>
+        <label class="copy-beers-source-label">
+          <span>{{ t('admin.copyBeersSourceLabel') }}</span>
+          <select v-model="copyBeersSourceId" class="copy-beers-select">
+            <option v-for="pub in otherPubs" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
+          </select>
+        </label>
+        <div v-if="copyBeersMessage" class="copy-beers-message">{{ copyBeersMessage }}</div>
+        <div class="import-dialog-actions">
+          <button type="button" class="btn-add" :disabled="!copyBeersSourceId" @click="confirmCopyBeers">
+            {{ t('admin.copyBeersConfirm') }}
+          </button>
+          <button type="button" class="btn-secondary" @click="closeCopyBeersModal">{{ t('admin.importCancel') }}</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="showQuickCatalogModal" class="modal" @click.self="closeQuickCatalogModal">
       <div class="modal-content quick-catalog-modal-content">
         <span class="close-modal" @click="closeQuickCatalogModal">&times;</span>
@@ -608,8 +689,21 @@ function cancelDeletePub() {
         <h3>{{ t('admin.editActivePub') }}</h3>
         <input v-model="editPubName" type="text" :placeholder="t('admin.pubPlaceholder')">
         <input v-model="editPubAddress" type="text" :placeholder="t('admin.pubAddressPlaceholder')">
+        <div v-if="activePubUrl" class="pub-url-row">
+          <span class="pub-url-label">{{ t('admin.pubUrl') }}:</span>
+          <span class="pub-url-value">{{ activePubUrl }}</span>
+          <button type="button" class="btn-copy-url" @click="copyPubUrl">
+            {{ pubUrlCopied ? t('admin.copyPubUrlDone') : t('admin.copyPubUrl') }}
+          </button>
+        </div>
         <div class="pub-edit-actions">
           <button type="submit" class="btn-secondary">{{ t('admin.savePubButton') }}</button>
+          <button
+            v-if="appData.pubs.length > 1"
+            type="button"
+            class="btn-secondary"
+            @click="openCopyBeersModal"
+          >{{ t('admin.copyBeersFromPub') }}</button>
           <button
             v-if="appData.pubs.length > 1"
             type="button"

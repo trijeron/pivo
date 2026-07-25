@@ -114,7 +114,19 @@ const translations = {
       deletePubConfirmBody: 'Opravdu smazat hospodu „{name}"? Všechna piva z této hospody budou přesunuta do jiné hospody.',
       deletePubConfirm: 'Smazat',
       deletePubCancel: 'Zrušit',
-      cannotDeleteLastPub: 'Nelze smazat poslední hospodu.'
+      cannotDeleteLastPub: 'Nelze smazat poslední hospodu.',
+      pubNickname: 'Přezdívka hospody',
+      pubUrl: 'URL odkaz na hospodu',
+      copyPubUrl: '🔗 Kopírovat odkaz',
+      copyPubUrlDone: '✓ Zkopírováno!',
+      copyBeersFromPub: '📋 Kopírovat piva z jiné hospody',
+      copyBeersModalTitle: 'Kopírovat piva z hospody',
+      copyBeersSourceLabel: 'Zdrojová hospoda',
+      copyBeersConfirm: 'Kopírovat piva',
+      copyBeersCount: 'Zkopírováno {count} piv do aktivní hospody.',
+      copyBeersNoneNew: 'Žádná nová piva k přidání (všechna jsou již v hospodě).',
+      pubNotFound: 'Hospoda „{nickname}" nenalezena.',
+      pubNotFoundHint: 'Hospoda s tímto odkazem neexistuje. Vytvoř ji níže.'
     },
     beer: {
       deleteConfirm: 'Opravdu trvale smazat toto pivo z lístku?',
@@ -287,7 +299,19 @@ const translations = {
       deletePubConfirmBody: 'Do you really want to delete pub "{name}"? All beers from this pub will be moved to another pub.',
       deletePubConfirm: 'Delete',
       deletePubCancel: 'Cancel',
-      cannotDeleteLastPub: 'Cannot delete the last pub.'
+      cannotDeleteLastPub: 'Cannot delete the last pub.',
+      pubNickname: 'Pub nickname',
+      pubUrl: 'Shareable pub URL',
+      copyPubUrl: '🔗 Copy link',
+      copyPubUrlDone: '✓ Copied!',
+      copyBeersFromPub: '📋 Copy beers from another pub',
+      copyBeersModalTitle: 'Copy beers from pub',
+      copyBeersSourceLabel: 'Source pub',
+      copyBeersConfirm: 'Copy beers',
+      copyBeersCount: 'Copied {count} beers to the active pub.',
+      copyBeersNoneNew: 'No new beers to copy (all already exist in this pub).',
+      pubNotFound: 'Pub "{nickname}" not found.',
+      pubNotFoundHint: 'No pub with this link exists. Create it below.'
     },
     beer: {
       deleteConfirm: 'Do you really want to permanently delete this beer from the menu?',
@@ -460,7 +484,19 @@ const translations = {
       deletePubConfirmBody: 'Möchtest du die Kneipe „{name}" wirklich löschen? Alle Biere aus dieser Kneipe werden in eine andere Kneipe verschoben.',
       deletePubConfirm: 'Löschen',
       deletePubCancel: 'Abbrechen',
-      cannotDeleteLastPub: 'Die letzte Kneipe kann nicht gelöscht werden.'
+      cannotDeleteLastPub: 'Die letzte Kneipe kann nicht gelöscht werden.',
+      pubNickname: 'Kneipe-Spitzname',
+      pubUrl: 'Teilbarer Kneipe-Link',
+      copyPubUrl: '🔗 Link kopieren',
+      copyPubUrlDone: '✓ Kopiert!',
+      copyBeersFromPub: '📋 Biere aus anderer Kneipe kopieren',
+      copyBeersModalTitle: 'Biere aus Kneipe kopieren',
+      copyBeersSourceLabel: 'Quellkneipe',
+      copyBeersConfirm: 'Biere kopieren',
+      copyBeersCount: '{count} Biere in die aktive Kneipe kopiert.',
+      copyBeersNoneNew: 'Keine neuen Biere zum Hinzufügen (alle sind bereits in der Kneipe).',
+      pubNotFound: 'Kneipe „{nickname}" nicht gefunden.',
+      pubNotFoundHint: 'Es gibt keine Kneipe mit diesem Link. Erstelle sie unten.'
     },
     beer: {
       deleteConfirm: 'Möchtest du dieses Bier wirklich dauerhaft aus der Karte löschen?',
