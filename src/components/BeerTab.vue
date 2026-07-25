@@ -3,18 +3,35 @@ import { ref, watch, computed } from 'vue'
 import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import BeerCard from './BeerCard.vue'
+import FriendsCatalogModal from './FriendsCatalogModal.vue'
 
 const emit = defineEmits(['go-admin'])
 
-const { appData, activeBeers, setActivePub, addOtherForFriend } = useAppData()
+const {
+  appData,
+  activePub,
+  activeBeers,
+  activePubFriendIds,
+  activePubFriendEntries,
+  setActivePub,
+  setFriendActiveForPub,
+  selectAllFriendsForPub,
+  clearActiveFriendsForPub,
+  addOtherForFriend
+} = useAppData()
 const { t } = useI18n()
 
 const displayBeers = computed(() => activeBeers.value.filter(b => !b.isOther))
+const activeDrinkersSummary = computed(() => {
+  if (activePubFriendIds.value.length === 0) return t('beerTab.noActiveFriends')
+  return t('beerTab.activeFriendsSummary', { count: activePubFriendIds.value.length })
+})
 
 const otherModalOpen = ref(false)
 const otherFriendIndex = ref(0)
 const otherKind = ref('food')
 const otherPrice = ref('')
+const friendsModalOpen = ref(false)
 
 watch(() => appData.friends.length, (length) => {
   if (length === 0) {
@@ -24,9 +41,19 @@ watch(() => appData.friends.length, (length) => {
   }
 })
 
+watch(activePubFriendEntries, (entries) => {
+  if (entries.length === 0) {
+    otherFriendIndex.value = 0
+    return
+  }
+  if (!entries.some(entry => entry.index === otherFriendIndex.value)) {
+    otherFriendIndex.value = entries[0].index
+  }
+}, { immediate: true })
+
 function openOtherModal() {
-  if (appData.friends.length === 0) return
-  otherFriendIndex.value = 0
+  if (activePubFriendEntries.value.length === 0) return
+  otherFriendIndex.value = activePubFriendEntries.value[0].index
   otherKind.value = 'food'
   otherPrice.value = ''
   otherModalOpen.value = true
@@ -44,6 +71,32 @@ function submitOtherModal() {
 
 <template>
   <div class="tab-content">
+    <div class="section quick-controls">
+      <div class="quick-controls-head">
+       <div>
+         <h2 class="friends-checklist-title">{{ t('beerTab.friendsChecklistTitle', { pub: activePub?.name || t('defaults.defaultPub') }) }}</h2>
+         <div class="quick-selection-summary">{{ activeDrinkersSummary }}</div>
+       </div>
+       <button type="button" class="btn-secondary" @click="friendsModalOpen = true">{{ t('beerTab.manageFriends') }}</button>
+      </div>
+
+      <div class="friends-checklist-actions">
+       <button type="button" class="btn-secondary" @click="selectAllFriendsForPub()">{{ t('beerTab.selectAllFriends') }}</button>
+       <button type="button" class="btn-secondary" @click="clearActiveFriendsForPub()">{{ t('beerTab.clearFriendSelection') }}</button>
+      </div>
+
+      <div class="friends-checklist">
+       <label v-for="friend in appData.friends" :key="friend.id" class="friends-checklist-item">
+         <input
+           :checked="activePubFriendIds.includes(friend.id)"
+           type="checkbox"
+           @change="setFriendActiveForPub(friend.id, $event.target.checked)"
+         >
+         <span>{{ friend.name }}</span>
+       </label>
+      </div>
+    </div>
+
     <div class="tab-toolbar">
      <label class="toolbar-pub-select">
        <span>{{ t('beerTab.pubLabel') }}</span>
@@ -52,7 +105,7 @@ function submitOtherModal() {
        </select>
      </label>
      <button type="button" class="btn-secondary" @click="emit('go-admin')">{{ t('beerTab.manage') }}</button>
-    <button type="button" class="btn-secondary" @click="openOtherModal">{{ t('beerTab.addOther') }}</button>
+    <button type="button" class="btn-secondary" :disabled="activePubFriendEntries.length === 0" @click="openOtherModal">{{ t('beerTab.addOther') }}</button>
    </div>
 
    <div v-if="displayBeers.length === 0" style="text-align:center; color:#7f8c8d; padding: 30px;">
@@ -69,7 +122,7 @@ function submitOtherModal() {
        <div class="modal-field">
          <label>{{ t('otherModal.userLabel') }}</label>
          <select v-model.number="otherFriendIndex" class="modal-input">
-           <option v-for="(friend, index) in appData.friends" :key="index" :value="index">{{ friend.name }}</option>
+           <option v-for="entry in activePubFriendEntries" :key="entry.friend.id" :value="entry.index">{{ entry.friend.name }}</option>
          </select>
        </div>
 
@@ -90,5 +143,7 @@ function submitOtherModal() {
        <button type="button" class="btn-add" @click="submitOtherModal">{{ t('otherModal.addButton') }}</button>
      </div>
    </div>
+
+   <FriendsCatalogModal v-if="friendsModalOpen" @close="friendsModalOpen = false" />
  </div>
 </template>
