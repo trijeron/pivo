@@ -120,6 +120,41 @@
       "price": 95,
       "vol": 0.5,
       "abv": 7
-    }
+    },
+    {
+    "name": "Turnovská dvanáctka 12°",
+    "style": "Světlý ležák",
+    "price": null,
+    "vol": 0.5,
+    "abv": 4.9
+  },
+  {
+    "name": "Turnovská zimní třináctka 13°",
+    "style": "Silné pivo (nastudeno chmelené)",
+    "price": null,
+    "vol": 0.5,
+    "abv": 5.5
+  },
+  {
+    "name": "Turnovská desítka 10°",
+    "style": "Světlé výčepní pivo",
+    "price": null,
+    "vol": 0.5,
+    "abv": 3.9
+  },
+  {
+    "name": "Turnovská tmavá dvanáctka 12°",
+    "style": "Tmavý ležák",
+    "price": null,
+    "vol": 0.5,
+    "abv": 4.8
+  },
+  {
+    "name": "Turnovská osmička 8°",
+    "style": "Světlé výčepní pivo",
+    "price": null,
+    "vol": 0.5,
+    "abv": 3.3
+  }
   ]
 }
