@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/pivo/',
+  base: process.env.VITE_BASE_URL ?? '/pivo/',
   plugins: [vue()],
   test: {
     environment: 'jsdom',
