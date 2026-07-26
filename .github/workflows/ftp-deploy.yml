@@ -24,6 +24,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_BASE_URL: /pivo/
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.5
