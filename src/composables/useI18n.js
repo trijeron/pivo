@@ -17,7 +17,7 @@ const translations = {
     language: 'Jazyk',
     currency: 'Kč',
     app: {
-      title: '🍻 Pivní lístek',
+      title: '🍻 Napivo.eu',
       tableTotal: 'Útrata stolu',
       warningTitle: '⚠️ Upozornění:',
       warningBody: 'Promile je čistě orientační. Neslouží pro posouzení schopnosti řídit! (V ČR platí 0.0 ‰).',
@@ -212,7 +212,7 @@ const translations = {
     language: 'Language',
     currency: 'CZK',
     app: {
-      title: '🍻 Beer menu',
+      title: '🍻 Napivo.eu',
       tableTotal: 'Table total',
       warningTitle: '⚠️ Warning:',
       warningBody: 'BAC is only approximate. Do not use it to assess driving ability! The legal limit in the Czech Republic is 0.0 ‰.',
@@ -407,7 +407,7 @@ const translations = {
     language: 'Sprache',
     currency: 'CZK',
     app: {
-      title: '🍻 Bierkarte',
+      title: '🍻 Napivo.eu',
       tableTotal: 'Tischsumme',
       warningTitle: '⚠️ Hinweis:',
       warningBody: 'Der Promillewert ist nur ein Richtwert. Er darf nicht zur Beurteilung der Fahrtüchtigkeit verwendet werden! In Tschechien gilt 0,0 ‰.',

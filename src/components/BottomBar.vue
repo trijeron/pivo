@@ -6,7 +6,7 @@ const { t } = useI18n()
 
 const activeModal = ref(null) // 'about' | 'support' | 'cookies' | null
 
-const SUPPORT_EMAIL = 'support@pivolisetek.cz'
+const SUPPORT_EMAIL = 'napivo@ithonza.cz'
 const CONSENT_KEY = 'beerAppCookieConsent'
 
 function currentChoice() {
