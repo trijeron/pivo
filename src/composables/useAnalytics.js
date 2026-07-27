@@ -1,4 +1,4 @@
-const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-RX66Z63BGM'
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'HULAHULA'
 const IS_PROD = import.meta.env.PROD
 
 let gaLoaded = false
