@@ -75,6 +75,7 @@ const copyBeersMessage = ref('')
 
 // Pub URL copy feedback
 const pubUrlCopied = ref(false)
+const importFormatCopied = ref(false)
 
 function makeBeerFingerprint(beer) {
   return [
@@ -436,6 +437,13 @@ function copyPubUrl() {
   })
 }
 
+function copyImportFormatText() {
+  navigator.clipboard.writeText(t('admin.importFormatValue')).then(() => {
+    importFormatCopied.value = true
+    setTimeout(() => { importFormatCopied.value = false }, 2000)
+  })
+}
+
 function openCopyBeersModal() {
   copyBeersSourceId.value = otherPubs.value[0]?.id || ''
   copyBeersMessage.value = ''
@@ -628,8 +636,11 @@ function confirmCopyBeers() {
 
       <details>
         <summary>{{ t('admin.bulkImport') }}</summary>
-        <p style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
+        <p style="font-size: 0.85em; color: #666; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           {{ t('admin.importFormat') }} <strong>{{ t('admin.importFormatValue') }}</strong>
+          <button type="button" class="btn-copy-url" @click="copyImportFormatText">
+            {{ importFormatCopied ? t('admin.copyImportFormatDone') : t('admin.copyImportFormat') }}
+          </button>
         </p>
         <p style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
           {{ t('admin.importStyleListLabel') }} {{ importStylesList }}
