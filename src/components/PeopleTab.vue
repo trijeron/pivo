@@ -4,12 +4,28 @@ import { useAppData } from '../composables/useAppData.js'
 import { useI18n } from '../composables/useI18n.js'
 import FriendsCatalogModal from './FriendsCatalogModal.vue'
 
-const { appData, activeBeers, activePub, activePubStats, activePubFriendEntries, setActivePub, clearActivePubDrinking, isBeerCountedAsAlcohol } = useAppData()
+const {
+  appData,
+  activeBeers,
+  activePub,
+  activePubStats,
+  activePubFriendEntries,
+  activePubFriendIds,
+  setActivePub,
+  clearActivePubDrinking,
+  setFriendActiveForPub,
+  selectAllFriendsForPub,
+  clearActiveFriendsForPub,
+  isBeerCountedAsAlcohol
+} = useAppData()
 const { t, translateBeerStyle } = useI18n()
-
 const selectedUserId = ref(null)
 const friendsModalOpen = ref(false)
 const consumptionSection = ref(null)
+const activeDrinkersSummary = computed(() => {
+  if (activePubFriendIds.value.length === 0) return t('beerTab.noActiveFriends')
+  return t('beerTab.activeFriendsSummary', { count: activePubFriendIds.value.length })
+})
 
 const selectedUserEntry = computed(() => {
   if (selectedUserId.value === null) return null
@@ -99,6 +115,33 @@ watch(activePubFriendEntries, (entries) => {
       <button type="button" class="btn-secondary" @click="friendsModalOpen = true">
         {{ t('people.manageFriends') }}
       </button>
+    </div>
+
+    <div class="section quick-controls">
+      <h2 class="friends-checklist-title">{{ t('beerTab.friendsChecklistTitle', { pub: activePub?.name || t('defaults.defaultPub') }) }}</h2>
+      <div class="quick-selection-summary">{{ activeDrinkersSummary }}</div>
+      <div class="friends-checklist-actions">
+        <button type="button" class="btn-secondary" @click="selectAllFriendsForPub()">{{ t('beerTab.selectAllFriends') }}</button>
+        <button type="button" class="btn-secondary" @click="clearActiveFriendsForPub()">{{ t('beerTab.clearFriendSelection') }}</button>
+      </div>
+      <div class="friends-checklist">
+        <label v-for="friend in appData.friends" :key="friend.id" class="friends-checklist-item">
+          <input
+            :checked="activePubFriendIds.includes(friend.id)"
+            type="checkbox"
+            @change="setFriendActiveForPub(friend.id, $event.target.checked)"
+          >
+          <span>{{ friend.name }}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>{{ t('people.firstBeerStartTitle') }}</h2>
+      <div class="time-setup">
+        {{ t('people.firstBeerStartLabel') }}
+        <input v-model="appData.startTime" type="time">
+      </div>
     </div>
 
     <div class="users-grid users-rows">
