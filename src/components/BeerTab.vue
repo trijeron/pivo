@@ -67,7 +67,7 @@ function submitOtherModal() {
          <option v-for="pub in appData.pubs" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
        </select>
      </label>
-     <button type="button" class="btn-secondary" @click="emit('go-admin')">{{ t('beerTab.manage') }}</button>
+     <button v-if="displayBeers.length === 0" type="button" class="btn-secondary" @click="emit('go-admin')">{{ t('beerTab.manage') }}</button>
     <button type="button" class="btn-secondary" :disabled="activePubFriendEntries.length === 0" @click="openOtherModal">{{ t('beerTab.addOther') }}</button>
    </div>
 
