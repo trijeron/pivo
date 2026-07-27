@@ -3,9 +3,7 @@ name: Deploy via FTP
 on:
   push:
     branches:
-      - '**'
-    branches-ignore:
-      - main
+      - develop
   workflow_dispatch:
 
 jobs:
