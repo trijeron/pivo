@@ -297,6 +297,12 @@ summary { cursor: pointer; font-weight: bold; color: #2980b9; }
 .bottombar-modal-content { max-width: 480px !important; }
 .bottombar-modal-body { line-height: 1.6; color: var(--text); }
 .bottombar-email-link { display: inline-block; margin-top: 8px; font-weight: bold; color: #3498db; word-break: break-all; }
+.cookie-banner { position: fixed; bottom: 44px; left: 0; right: 0; z-index: 950; background: var(--surface); border-top: 2px solid #3498db; padding: 14px 20px; box-shadow: 0 -4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: 0 auto; }
+.cookie-banner-text { margin: 0; font-size: 0.9em; color: var(--text); line-height: 1.5; }
+.cookie-banner-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.cookie-btn-accept { background: #3498db; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-weight: bold; font-size: 0.9em; }
+.cookie-btn-accept:hover { background: #2980b9; }
+.cookie-btn-decline { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border-strong); border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 0.9em; }
 
 @media (max-width: 640px) {
   .app-topbar { flex-direction: column; align-items: stretch; }

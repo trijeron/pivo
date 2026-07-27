@@ -192,10 +192,20 @@ const translations = {
     bottomBar: {
       about: 'O aplikaci',
       support: 'Podpora e-mailem',
+      cookies: 'Cookies',
       aboutTitle: 'O aplikaci 🍻 Pivní lístek',
       aboutBody: 'Pivní lístek je webová aplikace pro sledování pití v hospodě. Umožňuje evidovat piva na stole, počítat útratu pro každého kamaráda a orientačně sledovat hladinu alkoholu v krvi (promile). Data jsou uložena pouze v prohlížeči — žádné osobní údaje se neodesílají na server. Aplikace slouží pouze pro zábavu a orientaci.',
       supportTitle: 'Podpora e-mailem',
-      supportBody: 'Máte dotaz, nápad nebo narazili jste na chybu? Napište nám na:'
+      supportBody: 'Máte dotaz, nápad nebo narazili jste na chybu? Napište nám na:',
+      cookiesTitle: 'Informace o cookies 🍪',
+      cookiesBody: 'Tato aplikace ukládá data výhradně ve vašem prohlížeči (localStorage). Pokud souhlasíte, používáme Google Analytics pro anonymní sledování návštěvnosti — žádná osobní data nejsou sbírána ani sdílena. Vaše rozhodnutí si pamatujeme v localStorage.',
+      cookiesAccept: 'Přijmout analytické cookies',
+      cookiesDecline: 'Odmítnout',
+      cookiesUpdateChoice: 'Změnit volbu',
+      cookiesBanner: 'Tato aplikace používá Google Analytics pro anonymní statistiky návštěvnosti. Souhlasíte s používáním analytických cookies?',
+      cookiesCurrentChoice: 'Vaše volba: {choice}',
+      cookiesChoiceAccepted: 'přijato',
+      cookiesChoiceDeclined: 'odmítnuto'
     }
   },
   en: {
@@ -377,10 +387,20 @@ const translations = {
     bottomBar: {
       about: 'About',
       support: 'Email support',
+      cookies: 'Cookies',
       aboutTitle: 'About 🍻 Beer menu',
       aboutBody: 'Beer menu is a web app for tracking drinks at the pub. It lets you log beers on the table, calculate each friend\'s tab, and get an approximate blood alcohol level (BAC). Data is stored only in your browser — no personal information is sent to a server. The app is for entertainment and informational purposes only.',
       supportTitle: 'Email support',
-      supportBody: 'Have a question, an idea, or found a bug? Write to us at:'
+      supportBody: 'Have a question, an idea, or found a bug? Write to us at:',
+      cookiesTitle: 'Cookie information 🍪',
+      cookiesBody: 'This app stores data exclusively in your browser (localStorage). If you agree, we use Google Analytics for anonymous usage statistics — no personal data is collected or shared. Your choice is remembered in localStorage.',
+      cookiesAccept: 'Accept analytics cookies',
+      cookiesDecline: 'Decline',
+      cookiesUpdateChoice: 'Change choice',
+      cookiesBanner: 'This app uses Google Analytics for anonymous usage statistics. Do you agree to the use of analytics cookies?',
+      cookiesCurrentChoice: 'Your choice: {choice}',
+      cookiesChoiceAccepted: 'accepted',
+      cookiesChoiceDeclined: 'declined'
     }
   },
   de: {
@@ -562,10 +582,20 @@ const translations = {
     bottomBar: {
       about: 'Über die App',
       support: 'E-Mail-Support',
+      cookies: 'Cookies',
       aboutTitle: 'Über 🍻 Bierkarte',
       aboutBody: 'Bierkarte ist eine Web-App zur Verfolgung von Getränken in der Kneipe. Du kannst Biere auf dem Tisch erfassen, die Kosten für jeden Freund berechnen und einen ungefähren Blutalkoholwert (Promille) ermitteln. Die Daten werden nur im Browser gespeichert — es werden keine persönlichen Daten an einen Server übermittelt. Die App dient ausschließlich zur Unterhaltung und Information.',
       supportTitle: 'E-Mail-Support',
-      supportBody: 'Haben Sie eine Frage, eine Idee oder einen Fehler gefunden? Schreiben Sie uns an:'
+      supportBody: 'Haben Sie eine Frage, eine Idee oder einen Fehler gefunden? Schreiben Sie uns an:',
+      cookiesTitle: 'Cookie-Informationen 🍪',
+      cookiesBody: 'Diese App speichert Daten ausschließlich in Ihrem Browser (localStorage). Wenn Sie zustimmen, verwenden wir Google Analytics für anonyme Nutzungsstatistiken — es werden keine persönlichen Daten erfasst oder weitergegeben. Ihre Entscheidung wird im localStorage gespeichert.',
+      cookiesAccept: 'Analyse-Cookies akzeptieren',
+      cookiesDecline: 'Ablehnen',
+      cookiesUpdateChoice: 'Auswahl ändern',
+      cookiesBanner: 'Diese App verwendet Google Analytics für anonyme Nutzungsstatistiken. Stimmen Sie der Verwendung von Analyse-Cookies zu?',
+      cookiesCurrentChoice: 'Ihre Wahl: {choice}',
+      cookiesChoiceAccepted: 'akzeptiert',
+      cookiesChoiceDeclined: 'abgelehnt'
     }
   }
 }
