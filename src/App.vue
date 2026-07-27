@@ -7,6 +7,7 @@ import BeerTab   from './components/BeerTab.vue'
 import AdminTab  from './components/AdminTab.vue'
 import PeopleTab from './components/PeopleTab.vue'
 import BottomBar from './components/BottomBar.vue'
+import CookieConsent from './components/CookieConsent.vue'
 
 const { appData, stats, uiState, activePub, loadData, setActivePub, toggleTheme } = useAppData()
 const { localeState, availableLocales, t, setLocale } = useI18n()
@@ -94,4 +95,5 @@ onUnmounted(() => clearInterval(ticker))
   </div>
 
   <BottomBar />
+  <CookieConsent />
 </template>
