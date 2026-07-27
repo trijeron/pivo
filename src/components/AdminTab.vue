@@ -225,6 +225,12 @@ const importStylesList = computed(() =>
     .flatMap(group => group.styles)
     .join(', ')
 )
+const importFormatCopyText = computed(() =>
+  [
+    t('admin.importFormatValue'),
+    `${t('admin.importStyleListLabel')} ${importStylesList.value}`
+  ].join('\n\n')
+)
 
 function addSelectedCatalogBeersToPub() {
   quickCatalogItems.value.forEach(item => {
@@ -438,7 +444,7 @@ function copyPubUrl() {
 }
 
 function copyImportFormatText() {
-  navigator.clipboard.writeText(t('admin.importFormatValue')).then(() => {
+  navigator.clipboard.writeText(importFormatCopyText.value).then(() => {
     importFormatCopied.value = true
     setTimeout(() => { importFormatCopied.value = false }, 2000)
   })
