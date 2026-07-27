@@ -219,6 +219,11 @@ function clearQuickCatalogSelection() {
 const selectedQuickCatalogCount = computed(() =>
   quickCatalogItems.value.reduce((count, item) => count + (quickCatalogSelection.value[item.key] ? 1 : 0), 0)
 )
+const importStylesList = computed(() =>
+  beerStyleGroups
+    .flatMap(group => group.styles)
+    .join(', ')
+)
 
 function addSelectedCatalogBeersToPub() {
   quickCatalogItems.value.forEach(item => {
@@ -271,7 +276,27 @@ function submitBeer() {
 }
 
 function parseImportText(text) {
-  return text.split('\n')
+  const trimmedText = String(text || '').trim()
+  if (!trimmedText) return []
+
+  if (trimmedText.startsWith('[') || trimmedText.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmedText)
+      const source = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.beers) ? parsed.beers : [])
+      const fromJson = source
+        .map(item => ({
+          name: String(item?.name || '').trim(),
+          style: String(item?.style || '').trim(),
+          price: parseFloat(item?.price) || 0,
+          vol: parseFloat(item?.vol) || 0.5,
+          abv: parseFloat(item?.abv) || 5.0
+        }))
+        .filter(beer => beer.name)
+      if (fromJson.length > 0) return fromJson
+    } catch (e) {}
+  }
+
+  return trimmedText.split('\n')
     .map(line => line.trim())
     .filter(line => line.length > 0)
     .map(line => {
@@ -606,6 +631,9 @@ function confirmCopyBeers() {
         <p style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
           {{ t('admin.importFormat') }} <strong>{{ t('admin.importFormatValue') }}</strong>
         </p>
+        <p style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
+          {{ t('admin.importStyleListLabel') }} {{ importStylesList }}
+        </p>
         <textarea v-model="importText" class="import-area" rows="4" :placeholder="t('admin.importPlaceholder')"></textarea>
         <button type="button" class="btn-import" @click="doImport">{{ t('admin.importButton') }}</button>
       </details>
@@ -660,10 +688,6 @@ function confirmCopyBeers() {
 
     <div class="section">
       <h2>{{ t('admin.timeAndPayment') }}</h2>
-      <div class="time-setup">
-        {{ t('admin.eventStart') }}
-        <input v-model="appData.startTime" type="time">
-      </div>
       <div class="tools-flex">
         <button type="button" class="btn-warning" @click="doReset">{{ t('admin.resetPaid') }}</button>
         <button type="button" class="btn-danger"  @click="doClear">{{ t('admin.clearAll') }}</button>
