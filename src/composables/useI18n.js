@@ -85,7 +85,7 @@ const translations = {
       addBeerToTable: '+ Přidat pivo na stůl',
       bulkImport: 'Hromadný import piv ze seznamu',
       importFormat: 'Formát:',
-      importFormatValue: 'Rada, vyfoťte pivní nabídku a nahrajte do AI s poznámmkou chci JSON pole piv nebo objekt s polem beers ve tvaru": "\\n[\\n  { "name": "Pilsner Urquell", "style": "Světlý ležák (12°)", "price": 65, "vol": 0.5, "abv": 4.4 }\\n]\',',
+      importFormatValue: 'Rada, vyfoťte pivní nabídku a nahrajte do AI s poznámmkou chci JSON pole piv nebo objekt s polem beers ve tvaru": "[  { "name": "Pilsner Urquell", "style": "Světlý ležák (12°)", "price": 65, "vol": 0.5, "abv": 4.4 }]\',',
       importPlaceholder: 'seznam piv',
       importStyleListLabel: 'Dostupné kategorie pivních stylů:',
       importButton: 'Naimportovat',
